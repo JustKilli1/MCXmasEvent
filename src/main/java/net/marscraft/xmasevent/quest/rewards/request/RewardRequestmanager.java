@@ -1,11 +1,16 @@
 package net.marscraft.xmasevent.quest.rewards.request;
 
-import net.marscraft.xmasevent.quest.rewards.request.RequestState;
+import net.marscraft.xmasevent.quest.rewards.RewardCommand;
+import net.marscraft.xmasevent.quest.rewards.rewardtype.IRewardType;
+import net.marscraft.xmasevent.quest.rewards.rewardtype.RewardItems;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.entity.Player;
 
-public class RewardRequestmanager {
+import java.util.ArrayList;
+import java.util.Map;
+
+public class RewardRequestmanager extends Requestmanager{
 
     /*
      * BelohnungsHandler:
@@ -19,38 +24,41 @@ public class RewardRequestmanager {
     private Player _player;
 
     public RewardRequestmanager(ILogmanager logger, DatabaseAccessLayer sql, Player player) {
+        super(logger);
         _logger = logger;
         _sql = sql;
         _player = player;
     }
-
+    //Splits String to get Single Commands Format: [RewardType], [RewardOptionHeader1]=[RewardOptionValue1], [RewardOptionHeader2]=[RewardOptionValue2]...
     public RequestState ExecuteReward(String commandStr) {
-        String[] commands = commandStr.split("|");
+        ArrayList<String> commands = SplitStringByChar(commandStr, '|');
         for(String command : commands) {
+            _player.sendMessage(command);//TODO DEBUG
+            RewardCommand rewardCommand = GetProcessedCommand(command);
             //RewardItems, NormalItem=Diamond_Sword 1, CustomItem=[CustomItemId]
-            String[] commandOptions = command.split(",");
-            if(!isValidRewardType(commandOptions[0])) return RequestState.FAILED;
-            for(int i = 1; i < commandOptions.length; i++) {
-                runCommand(commandOptions[i]);
+            runCommand(rewardCommand);
+            for(String key : rewardCommand.GetParamOptions().keySet()){//TODO DEBUG
+                _player.sendMessage("RewardCommandCommandOption: " + rewardCommand.GetParamOptions().get(key));
+
             }
         }
-        return RequestState.FAILED;
+        return RequestState.SUCCESS;
     }
-    private boolean isValidRewardType(String rewardType) {
-        switch (rewardType) {
-            case "RewardItems":
-                return true;
-            default:
-                return false;
-        }
+    private RequestState runCommand(RewardCommand rewardCommand) {
+
+        RewardCommand command = rewardCommand;
+        Map<String, String> paramOptions = command.GetParamOptions();
+        IRewardType rewardType;
+
+            switch (command.GetRewardType().toLowerCase()) {
+                case "rewarditems":
+                    rewardType = new RewardItems(_logger, _player, command.GetParamOptions());
+                    _player.sendMessage(command.GetParamOptions().toString() + " runCommand function worked");//TODO DEBUG
+                    break;
+                default:
+                    return RequestState.InvalidRewardType;
+            }
+            rewardType.GivePlayerReward();
+        return RequestState.SUCCESS;
     }
-    private RequestState runCommand(String command) {
-        String[] commandParts = command.split("=");
-        if(commandParts.length != 2) return RequestState.CommandSyntaxError;
-
-
-
-        return RequestState.FAILED;
-    }
-
 }

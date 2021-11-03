@@ -10,8 +10,6 @@ import net.marscraft.xmasevent.shared.configmanager.IConfigmanager;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import net.marscraft.xmasevent.shared.logmanager.Logmanager;
-import net.marscraft.xmasevent.shared.messagemanager.IMessagemanager;
-import net.marscraft.xmasevent.shared.messagemanager.Messagemanager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
@@ -41,7 +39,7 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new KillMobListener(_logger, _sql), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(_logger, _sql), this);
         getServer().getPluginManager().registerEvents(new PlaceBlockListener(_logger, _sql), this);
-        getCommand("test").setExecutor(new ShowPoint(_logger, _sql));
+        getCommand("test").setExecutor(new ShowPoint(_logger, _sql));//TODO DEBUG
         getCommand("mcxmas").setExecutor(new McXmasCommand(_logger, _sql));
     }
 
