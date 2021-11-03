@@ -6,11 +6,13 @@ public enum CommandState {
     QuestCreated,
     QuestAlreadyExists,
     QuestIdWrongFormat,
+    CommandSyntaxError,
     CommandSyntaxErrorCreate,
     CommandSyntaxErrorEdit,
     CommandSyntaxErrorQuests,
     CantFindQuestId,
     InvalidTaskName,
     InvalidBlock,
-    InvalidEntityType
+    InvalidEntityType,
+    RewardSet
 }

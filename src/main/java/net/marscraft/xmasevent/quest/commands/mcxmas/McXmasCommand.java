@@ -31,18 +31,33 @@ public class McXmasCommand implements CommandExecutor {
         Player player = (Player) sender;
         _messages = new Messagemanager(_logger, player);
 
+        if(args.length == 0) {
+            commandStateActions(CommandState.CommandSyntaxError, args);
+            return false;
+        }
+
         if(args[0].equalsIgnoreCase("create")) {
             _commandType = new CommandTypeCreate(_logger, _sql, _messages);
             commandStateActions(_commandType.ExecuteCommand(args), args);
+            return true;
         } else if(args[0].equalsIgnoreCase("quests")) {
             if(args[1].equalsIgnoreCase("list")) {
                 _commandType = new CommandTypeList(_logger, _sql, _messages);
                 _commandType.ExecuteCommand(args);
+                return true;
             }
         } else if(args[0].equalsIgnoreCase("edit")) {
+            if(args.length < 4){
+                commandStateActions(CommandState.CommandSyntaxErrorEdit, args);
+                return false;
+            }
             _commandType = new CommandTypeEdit(_logger, _sql, player);
             CommandState cState = _commandType.ExecuteCommand(args);
             commandStateActions(cState, args);
+            return true;
+        } else {
+            commandStateActions(CommandState.CommandSyntaxError, args);
+            return false;
         }
         return false;
     }
@@ -59,16 +74,19 @@ public class McXmasCommand implements CommandExecutor {
                 _messages.SendErrorMessage("Command: §c" + command + " §akonnte nicht ausgeführt werden!");
                 break;
             case QuestCreated:
-                _messages.SendPlayerMessage("Quest §c" + getQuestName(args) + " §awurde erstellt");
+                _messages.SendPlayerMessage("Quest §c" + getArgsString(args, 2) + " §awurde erstellt");
                 break;
             case QuestAlreadyExists:
-                _messages.SendPlayerMessage("Der Quest mit dem Namen §c" + getQuestName(args) + " §aexistiert bereits!");
+                _messages.SendPlayerMessage("Der Quest mit dem Namen §c" + getArgsString(args, 2) + " §aexistiert bereits!");
+                break;
+            case CommandSyntaxError:
+                _messages.SendPlayerMessage("Syntax fehler benutze: §c/mcxmas [create,edit,quests]");
                 break;
             case CommandSyntaxErrorCreate:
                 _messages.SendPlayerMessage("Syntax fehler benutze: §c/mcxmas create [Task Name] [Quest Name]");
                 break;
             case CommandSyntaxErrorEdit:
-                _messages.SendPlayerMessage("Syntax fehler benutze: §c/mcxmas edit [Quest Id] [SetTask] [Task Id] [Taskspezifische angaben]...");
+                _messages.SendPlayerMessage("Syntax fehler benutze: §c/mcxmas edit [Quest Id] [SetTask, SetReward] [Task Id] [Taskspezifische angaben]...");
                 break;
             case CommandSyntaxErrorQuests:
                 _messages.SendPlayerMessage("Syntax fehler benutze: §c/mcxmas quests list");
@@ -87,11 +105,14 @@ public class McXmasCommand implements CommandExecutor {
             case InvalidEntityType:
                 _messages.SendPlayerMessage("Der Mob §c" + args[5] + " §aist kein gültiger Mob");
                 break;
+            case RewardSet:
+                _messages.SendPlayerMessage("Reward §c" + getArgsString(args, 3) + " §aerfolgreich gesetzt.");
+                break;
         }
     }
-    private String getQuestName(String[] args) {
-        String questName = args[2];
-        for(int i = 3; i < args.length; i++) { questName += " " + args[i]; }
-        return questName;
+    private String getArgsString(String[] args, int starting) {
+        String argsString = args[starting];
+        for(int i = starting + 1; i < args.length; i++) { argsString += " " + args[i]; }
+        return argsString;
     }
 }
