@@ -18,18 +18,14 @@ public class Rewardmanager {
     }
 
     public boolean EnoughSpaceInInventory(int neededSpace) {
-        return true;
-        /*int space = 0; TODO BUG iStack is NULL vorerst deaktiviert
+        int space = 0;
         for(ItemStack iStack : getPlayerInventory()) {
-            if(iStack != null) {
-                _player.sendMessage(iStack.getItemMeta().getDisplayName());
-                if (iStack == new ItemStack(Material.AIR)) space++;
+            if(iStack == null) {
+                space++;
                 if (neededSpace == space) return true;
-            } else {
-                _player.sendMessage("iStack null Space: " + space);
             }
         }
-        return false;*/
+        return false;
     }
     private ArrayList<ItemStack> getPlayerInventory() {
         ArrayList<ItemStack> playerInventory = new ArrayList<>();

@@ -22,7 +22,6 @@ public class RewardItems extends Rewardmanager implements IRewardType{
         super(logger, player);
         _logger = logger;
         _player = player;
-        _player.sendMessage(commandOptions.toString());//TODO DEBUG
         if(!setRewardItemsByCommand(commandOptions)) _player.sendMessage("§cEs ist ein Fehler bei der Vergabe der Belohnung aufgetreten. Bitte kontaktiere ein Teammitglied.");
     }
     //NormalItem=Diamond_Sword 1
@@ -34,9 +33,9 @@ public class RewardItems extends Rewardmanager implements IRewardType{
             if(key.equalsIgnoreCase("normalitem")){
                 Requestmanager rm = new Requestmanager(_logger);
                 ArrayList<String> rewardOptionValues = rm.SplitStringByChar(commandOptions.get(key), ' ');
-                if(rewardOptionValues.size() == 2 && IsValidItem(rewardOptionValues.get(0))){
+                if(rewardOptionValues.size() == 2 && IsValidItem(rewardOptionValues.get(0).replace(" ", ""))){
 
-                    Material material = Material.valueOf(rewardOptionValues.get(0).toUpperCase());
+                    Material material = Material.valueOf(rewardOptionValues.get(0).replace(" ", "").toUpperCase());
 
                     ItemStack iStack = new ItemStack(material);
                     ItemMeta iMeta = iStack.getItemMeta();
@@ -60,7 +59,7 @@ public class RewardItems extends Rewardmanager implements IRewardType{
     public RewardState GivePlayerReward() {
         if(!EnoughSpaceInInventory(_rewards.size())) return RewardState.NotEnoughSpaceInInventory;
         for(ItemStack reward : _rewards.keySet()) {
-            for(int i = 0; i <= _rewards.get(reward); i++) {
+            for(int i = 0; i < _rewards.get(reward); i++) {
                 _player.getInventory().addItem(reward);
             }
         }

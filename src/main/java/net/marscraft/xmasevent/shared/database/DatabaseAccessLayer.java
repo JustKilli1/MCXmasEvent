@@ -153,6 +153,11 @@ public class DatabaseAccessLayer {
         return ExecuteSQLRequest(sqlQuery);
     }
 
+    public boolean UpdateRewardCommandString(int questId, String rewardCommandStr) {
+        String sqlQuery = "UPDATE quests SET RewardString='" + rewardCommandStr + "' WHERE QuestId=" + questId;
+        return ExecuteSQLRequest(sqlQuery);
+    }
+
     public boolean UpdateTaskPlayerBlockPlaced(Player player) {
 
         String sqlQuery = "UPDATE PlayerQuestProgress SET QuestValueBool=true WHERE PlayerUUID='" + player.getUniqueId().toString() + "'";

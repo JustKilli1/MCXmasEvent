@@ -46,7 +46,6 @@ public class KillMobListener implements Listener {
                     _taskType = new KillMobsTask(_logger, _sql, questId, playerMobKills + 1, mobType);
                     if(_taskType.IsTaskFinished()) {
                         String rewardString = _sql.GetRewardCommand(questId);
-                        player.sendMessage(rewardString);//TODO DEBUG
                         RewardRequestmanager requestmanager = new RewardRequestmanager(_logger, _sql, player);
                         requestmanager.ExecuteReward(rewardString);
                     }
