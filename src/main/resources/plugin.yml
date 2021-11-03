@@ -1,0 +1,13 @@
+name: XmasEvent
+version: ${project.version}
+main: net.marscraft.xmasevent.Main
+api-version: 1.17
+authors: [ JustKilli ]
+description: MarsCraft Christmas Event plugin
+website: marscraft.net
+
+commands:
+  test:
+    description: DEBUG Show KillMobsTask Progress Value;
+  mcxmas:
+    description: MarsCraft Event Command
