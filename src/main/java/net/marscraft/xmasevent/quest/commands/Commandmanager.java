@@ -43,7 +43,6 @@ public class Commandmanager {
         try {
             return Integer.parseInt(target);
         } catch (Exception ex){
-            _logger.Error(ex);
             return 0;
         }
     }

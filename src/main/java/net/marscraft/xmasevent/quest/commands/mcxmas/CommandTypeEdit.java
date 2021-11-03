@@ -24,12 +24,17 @@ public class CommandTypeEdit extends Commandmanager implements ICommandType {
 
     @Override
     public CommandState ExecuteCommand(String[] args) {
-        // /mcxmas edit [questID] SetTask [taskspezifische Values]
+        // /mcxmas edit [questID] SetTask [TaskName] [taskspezifische Values]
+        int questId = getIntFromStr(args[1]);
+        if(questId == 0) return CommandState.CantFindQuestId;
         if(args[2].equalsIgnoreCase("SetTask")){
-            int questId = getIntFromStr(args[1]);
-            if(questId == 0) return CommandState.CantFindQuestId;
-
             return doActionsBasedOnTask(questId, args);
+        } else if(args[2].equalsIgnoreCase("SetReward")){
+            // /mcxmas edit [questID] SetReward [RewardCommandString]
+            String rewardCommandStr = "";
+            for(int i = 3; i < args.length; i++) { rewardCommandStr += args[i] + " "; }
+            _sql.UpdateRewardCommandString(questId, rewardCommandStr);
+            return CommandState.RewardSet;
         } else {
             return CommandState.CommandSyntaxErrorEdit;
         }
@@ -40,6 +45,8 @@ public class CommandTypeEdit extends Commandmanager implements ICommandType {
     * PlaceBlockTask Command:
     * /mcxmas edit [questId] SetTask [TaskName] [blockType]
     * */
+
+
 
     private CommandState doActionsBasedOnTask(int questId, String[] args) {
         String taskName = args[3];

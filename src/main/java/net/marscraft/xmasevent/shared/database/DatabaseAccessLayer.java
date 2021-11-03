@@ -30,7 +30,7 @@ public class DatabaseAccessLayer {
         return ExecuteSQLRequest(sqlQuery);
     }
     public boolean CreateQuestsTable() {
-        String sqlQuery = "CREATE TABLE IF NOT EXISTS Quests (QuestId INT NOT NULL, QuestName VARCHAR(100) NOT NULL,QuestOrder INT, TaskName VARCHAR(100)," +
+        String sqlQuery = "CREATE TABLE IF NOT EXISTS Quests (QuestId INT NOT NULL, QuestName VARCHAR(100) NOT NULL,QuestOrder INT, TaskName VARCHAR(100), RewardString VARCHAR(200)," +
                 " StartingMessage VARCHAR(100) DEFAULT 'Not Set', EndMessage VARCHAR(100) DEFAULT 'Not Set', QuestSetupFinished boolean DEFAULT false);";
         return ExecuteSQLRequest(sqlQuery);
     }
@@ -125,24 +125,36 @@ public class DatabaseAccessLayer {
         ResultSet rs = QuerySQLRequest(sqlQuery);
 
         try {
-            if(!rs.next()) {
-                return 0;
-            } else {
-                int test = rs.getInt("QuestValueInt");
-                return test;
-            }
-
+            if(!rs.next()) return 0;
+            int questValueInt = rs.getInt("QuestValueInt");
+            return questValueInt;
         } catch (Exception ex) {
             _logger.Error(ex);
         }
         return -1;
     }
+    public String GetRewardCommand(int questId) {
+        String sqlQuery = "SELECT * FROM Quests WHERE QuestId=" + questId;
+        ResultSet rs = QuerySQLRequest(sqlQuery);
 
+        try {
+            if(!rs.next())return null;
+            return rs.getString("RewardString");
+        } catch (Exception ex) {
+            _logger.Error(ex);
+            return null;
+        }
+    }
     public boolean AddPlayerMobKill(Player player, int questId) {
         int oldCount = GetPlayerQuestValueInt(player);
         int newCount =  oldCount + 1;
 
         String sqlQuery = "UPDATE PlayerQuestProgress SET QuestValueInt=" + newCount + " WHERE PlayerUUID='" + player.getUniqueId().toString() + "'";
+        return ExecuteSQLRequest(sqlQuery);
+    }
+
+    public boolean UpdateRewardCommandString(int questId, String rewardCommandStr) {
+        String sqlQuery = "UPDATE quests SET RewardString='" + rewardCommandStr + "' WHERE QuestId=" + questId;
         return ExecuteSQLRequest(sqlQuery);
     }
 
