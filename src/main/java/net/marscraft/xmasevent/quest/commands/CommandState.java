@@ -16,5 +16,6 @@ public enum CommandState {
     InvalidEntityType,
     RewardSet,
     StartingMessageSet,
-    EndMessageSet
+    EndMessageSet,
+    QuestOrderSet
 }

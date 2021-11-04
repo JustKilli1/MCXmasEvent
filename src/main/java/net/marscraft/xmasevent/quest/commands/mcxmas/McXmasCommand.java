@@ -114,6 +114,9 @@ public class McXmasCommand implements CommandExecutor {
             case EndMessageSet:
                 _messages.SendPlayerMessage("Beendigungs Nachricht des Quests wurde erfolgreich gesetzt.");
                 break;
+            case QuestOrderSet:
+                _messages.SendPlayerMessage("QuestOrder wurde erfolgreich gesetzt.");
+                break;
         }
     }
     private String getArgsString(String[] args, int starting) {

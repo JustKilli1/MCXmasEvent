@@ -42,7 +42,11 @@ public class CommandTypeEdit extends Commandmanager implements ICommandType {
         } else if(args[2].equalsIgnoreCase("SetEMessage")) {
             _sql.UpdateQuestMessage(questId, commandStr, "EndMessage");
             return CommandState.EndMessageSet;
-        } else {
+        } else if(args[2].equalsIgnoreCase("SetQOrder")){
+            if(args.length != 4)return CommandState.CommandSyntaxErrorEdit;
+            if(!(_sql.UpdateQuestOrder(questId, getIntFromStr(args[3])))) return CommandState.FAILED;
+            return CommandState.QuestOrderSet;
+        } else{
             return CommandState.CommandSyntaxErrorEdit;
         }
     }

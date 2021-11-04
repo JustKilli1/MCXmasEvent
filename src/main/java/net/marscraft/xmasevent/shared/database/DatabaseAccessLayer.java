@@ -80,6 +80,18 @@ public class DatabaseAccessLayer {
         }
 
     }
+    public int GetLastQuestOrder() {
+        String sqlQuery = "SELECT * FROM quests ORDER BY QuestOrder DESC LIMIT 1";
+        ResultSet rs = QuerySQLRequest(sqlQuery);
+
+        try {
+            if(!rs.next()) return 0;
+            else return rs.getInt("QuestOrder");
+        } catch (Exception ex) {
+            _logger.Error(ex);
+            return 0;
+        }
+    }
 
     public boolean CreateKillMobsTask(int taskId, int questId, int neededMobs, String mobType) {
 
@@ -145,6 +157,18 @@ public class DatabaseAccessLayer {
             return null;
         }
     }
+    public int GetQuestOrder(int questId) {
+        String sqlQuery = "SELECT * FROM quests WHERE QuestId=" + questId;
+        ResultSet rs = QuerySQLRequest(sqlQuery);
+
+        try {
+            if(!rs.next())return 0;
+            else return rs.getInt("QuestOrder");
+        } catch (Exception ex) {
+            _logger.Error(ex);
+            return 0;
+        }
+    }
     public boolean AddPlayerMobKill(Player player, int questId) {
         int oldCount = GetPlayerQuestValueInt(player);
         int newCount =  oldCount + 1;
@@ -161,7 +185,36 @@ public class DatabaseAccessLayer {
         String sqlQuery = "UPDATE quests SET " + field + "='" + commandStr + "' WHERE QuestId=" + questId;
         return ExecuteSQLRequest(sqlQuery);
     }
+    public boolean UpdateQuestOrder(int questId, int newQuestOrder) {
 
+        int oldQuestOrder = GetQuestOrder(questId);
+        if(oldQuestOrder == 0)return false;
+        String sqlQuery = "";
+
+        //if(QuestOrderExists(newQuestOrder)) {
+            if(newQuestOrder > oldQuestOrder){
+                for(int i = oldQuestOrder; i <= newQuestOrder; i++) {
+                    int newQOrder = i - 1;
+                    sqlQuery = "UPDATE quests SET QuestOrder=" + newQOrder + " WHERE QuestOrder=" + i;
+                    ExecuteSQLRequest(sqlQuery);
+                }
+                sqlQuery = "UPDATE quests SET QuestOrder=" + newQuestOrder + " WHERE QuestId=" + questId;
+                return ExecuteSQLRequest(sqlQuery);
+            } else if(newQuestOrder < oldQuestOrder) {
+                for(int i = GetLastQuestOrder(); i >= newQuestOrder; i--) {
+                    sqlQuery = "UPDATE quests SET QuestOrder=" + i+1 + " WHERE QuestOrder=" + i;
+                    ExecuteSQLRequest(sqlQuery);
+                }
+                sqlQuery = "UPDATE quests SET QuestOrder=" + newQuestOrder + " WHERE QuestId=" + questId;
+                return ExecuteSQLRequest(sqlQuery);
+            } else {
+                return true;
+            }
+        /*} else {
+            sqlQuery = "UPDATE quests SET QuestOrder=" + newQuestOrder + " WHERE QuestId=" + questId;
+            return ExecuteSQLRequest(sqlQuery);
+        }*/
+    }
     public boolean UpdateTaskPlayerBlockPlaced(Player player) {
 
         String sqlQuery = "UPDATE PlayerQuestProgress SET QuestValueBool=true WHERE PlayerUUID='" + player.getUniqueId().toString() + "'";
@@ -234,6 +287,19 @@ public class DatabaseAccessLayer {
             _logger.Error(ex);
         }
         return false;
+    }
+
+    public boolean QuestOrderExists(int questOrder) {
+        String sqlQuery = "SELECT * FROM quests WHERE QuestOrder=" + questOrder;
+        ResultSet rs = QuerySQLRequest(sqlQuery);
+
+        try {
+            if(rs.next()) return true;
+            else return false;
+        } catch (Exception ex) {
+            _logger.Error(ex);
+            return false;
+        }
     }
 
     public ResultSet GetAllQuests() {
