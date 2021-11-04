@@ -1,5 +1,8 @@
 package net.marscraft.xmasevent.quest.listener;
 
+import net.marscraft.xmasevent.Main;
+import net.marscraft.xmasevent.quest.Quest;
+import net.marscraft.xmasevent.quest.Questmanager;
 import net.marscraft.xmasevent.quest.rewards.request.RewardRequestmanager;
 import net.marscraft.xmasevent.quest.task.tasktype.ITaskType;
 import net.marscraft.xmasevent.quest.task.tasktype.KillMobsTask;
@@ -20,13 +23,16 @@ import java.util.Locale;
 public class KillMobListener implements Listener {
 
     private ILogmanager _logger;
-    private  DatabaseAccessLayer _sql;
+    private DatabaseAccessLayer _sql;
+    private Main _plugin;
     private IMessagemanager _messageManager;
     private ITaskType _taskType;
+    private Questmanager _questManager;
 
-    public KillMobListener(ILogmanager logger, DatabaseAccessLayer sql) {
+    public KillMobListener(ILogmanager logger, DatabaseAccessLayer sql, Main plugin) {
         _logger = logger;
         _sql = sql;
+        _plugin = plugin;
     }
 
     @EventHandler
@@ -35,25 +41,14 @@ public class KillMobListener implements Listener {
             Player player = (Player) event.getEntity().getKiller();
             _messageManager = new Messagemanager(_logger, player);
             int questId = _sql.GetActivePlayerQuestId(player);
-            int playerMobKills = _sql.GetPlayerQuestValueInt(player);
 
-            ResultSet task = _sql.GetTaskByQuestId("KillMobsTask", questId);
+            Questmanager questmanager = new Questmanager(_logger, _sql, _plugin);
+            Quest activePlayerQuest = questmanager.GetQuestByQuestId(questId);
 
-            try {
-                if(!task.next()) return;
-                String mobType = task.getString("MobType").toUpperCase();
-                if(event.getEntityType() == EntityType.valueOf(mobType)){
-                    _taskType = new KillMobsTask(_logger, _sql, questId, playerMobKills + 1, mobType);
-                    if(_taskType.IsTaskFinished()) {
-                        String rewardString = _sql.GetRewardCommand(questId);
-                        RewardRequestmanager requestmanager = new RewardRequestmanager(_logger, _sql, player);
-                        requestmanager.ExecuteReward(rewardString);
-                    }
-                    _sql.AddPlayerMobKill(player, questId);
+                if(event.getEntityType() == EntityType.valueOf(questmanager.GetTaskManager().GetKillMobsTaskMobType(questId))){
+                    if(activePlayerQuest.GetTaskType().IsTaskFinished()) questmanager.FinishQuest(questId, player);
+                    else _sql.AddPlayerMobKill(player, questId);
                 }
-            } catch (Exception ex) {
-                _logger.Error(ex);
-            }
         }
     }
 }

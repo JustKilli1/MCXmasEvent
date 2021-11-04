@@ -1,5 +1,6 @@
 package net.marscraft.xmasevent.quest.commands.mcxmas;
 
+import net.marscraft.xmasevent.Main;
 import net.marscraft.xmasevent.quest.commands.CommandState;
 import net.marscraft.xmasevent.quest.commands.ICommandType;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
@@ -16,12 +17,14 @@ public class McXmasCommand implements CommandExecutor {
 
     private ILogmanager _logger;
     private DatabaseAccessLayer _sql;
+    private Main _plugin;
     private IMessagemanager _messages;
     private ICommandType _commandType;
 
-    public McXmasCommand(ILogmanager logger, DatabaseAccessLayer sql) {
+    public McXmasCommand(ILogmanager logger, DatabaseAccessLayer sql, Main plugin) {
         _logger = logger;
         _sql = sql;
+        _plugin = plugin;
     }
 
     @Override
@@ -37,7 +40,7 @@ public class McXmasCommand implements CommandExecutor {
         }
 
         if(args[0].equalsIgnoreCase("create")) {
-            _commandType = new CommandTypeCreate(_logger, _sql, _messages);
+            _commandType = new CommandTypeCreate(_logger, _sql, _plugin, _messages);
             commandStateActions(_commandType.ExecuteCommand(args), args);
             return true;
         } else if(args[0].equalsIgnoreCase("quests")) {
@@ -97,7 +100,7 @@ public class McXmasCommand implements CommandExecutor {
                 _messages.SendPlayerMessage("Die Quest Id §c" + args[1] + " §aexistiert nicht.");
                 break;
             case InvalidTaskName:
-                _messages.SendPlayerMessage("Der Task mit dem Namen §c" + args[1] + " §aexistiert nicht!");
+                _messages.SendPlayerMessage("Der Task mit dem Namen §c" + args[3] + " §aexistiert nicht!");
                 break;
             case InvalidBlock:
                 _messages.SendPlayerMessage("Der Block §c" + args[4] + " §aist kein gültiger Block");

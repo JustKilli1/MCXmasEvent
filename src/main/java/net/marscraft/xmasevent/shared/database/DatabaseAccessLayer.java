@@ -39,7 +39,7 @@ public class DatabaseAccessLayer {
         return ExecuteSQLRequest(sqlQuery);
     }
     public boolean CreatePlaceBlockTaskTable() {
-        String sqlQuery = "CREATE TABLE IF NOT EXISTS PlaceBlockTask (TaskId INT NOT NULL, TaskName VARCHAR(100) DEFAULT 'PlaceBlockTask', QuestId INT NOT NULL, BlockType VARCHAR(100), BlockPositionX DOUBLE, BlockPositionY DOUBLE, BlockPositionZ DOUBLE);";
+        String sqlQuery = "CREATE TABLE IF NOT EXISTS PlaceBlockTask (TaskId INT NOT NULL, TaskName VARCHAR(100) DEFAULT 'PlaceBlockTask', QuestId INT NOT NULL, BlockType VARCHAR(100), BlockPositionX DOUBLE, BlockPositionY DOUBLE, BlockPositionZ DOUBLE, WorldName VARCHAR(100));";
         return ExecuteSQLRequest(sqlQuery);
     }
 
@@ -116,19 +116,21 @@ public class DatabaseAccessLayer {
                 "BlockType='" + blockType + "', " +
                 "BlockPositionX='" + location.getX() + "', " +
                 "BlockPositionY='" + location.getY() + "', " +
-                "BlockPositionZ='" + location.getZ() + "' " +
+                "BlockPositionZ='" + location.getZ() + "', " +
+                "WorldName='" + location.getWorld().getName() + "' " +
                 "WHERE QuestId=" + questId;
         return ExecuteSQLRequest(sqlQuery);
     }
     public boolean CreatePlaceBlockTask(int taskId, int questId, String blockType, Location location) {
 
-        String sqlQuery = "INSERT INTO PlaceBlockTask (TaskId, QuestId, BlockType, BlockPositionX, BlockPositionY, BlockPositionZ)" +
+        String sqlQuery = "INSERT INTO PlaceBlockTask (TaskId, QuestId, BlockType, BlockPositionX, BlockPositionY, BlockPositionZ, WorldName)" +
                 "VALUES (" + taskId + ", " +
                 questId + ", " +
                 "'" + blockType + "'," +
                 "'" + location.getX() + "', " +
                 "'" + location.getY() + "', " +
-                "'" + location.getZ() + "' )";
+                "'" + location.getZ() + "', " +
+                "'" + location.getWorld().getName() + "')";
         return ExecuteSQLRequest(sqlQuery);
     }
     public int GetPlayerQuestValueInt(Player player) {
@@ -192,7 +194,6 @@ public class DatabaseAccessLayer {
         if(oldQuestOrder == 0) return false;
         String sqlQuery = "";
 
-        //if(QuestOrderExists(newQuestOrder)) {
             if(newQuestOrder > oldQuestOrder){
                 for(int i = oldQuestOrder; i <= newQuestOrder; i++) {
                     int newQOrder = i - 1;
@@ -213,10 +214,28 @@ public class DatabaseAccessLayer {
             } else {
                 return true;
             }
-        /*} else {
-            sqlQuery = "UPDATE quests SET QuestOrder=" + newQuestOrder + " WHERE QuestId=" + questId;
-            return ExecuteSQLRequest(sqlQuery);
-        }*/
+    }
+    public boolean SetNextPlayerQuest(String playerUUID, int questId) {
+        int nextQuestId = GetNextQuestQuestID(questId);
+        String sqlQuery = "UPDATE PlayerQuestProgress SET QuestId=" + nextQuestId + " WHERE PlayerUUID='" + playerUUID + "'";
+        return ExecuteSQLRequest(sqlQuery);
+    }
+    public int GetNextQuestQuestID(int oldQuestId) {
+        int newQuestOrder = GetQuestOrder(oldQuestId) + 1;
+        String sqlQuery="SELECT * FROM quests WHERE QuestOrder=" + newQuestOrder;
+        ResultSet rs = QuerySQLRequest(sqlQuery);
+
+        try {
+            if(!rs.next()) return 0;
+            else return rs.getInt("QuestId");
+        } catch (Exception ex) {
+            _logger.Error(ex);
+            return 0;
+        }
+    }
+    public ResultSet GetQuest(int questId) {
+        String sqlQuery = "SELECT * FROM quests WHERE QuestId=" + questId;
+        return QuerySQLRequest(sqlQuery);
     }
     public boolean UpdateTaskPlayerBlockPlaced(Player player) {
 
@@ -291,20 +310,6 @@ public class DatabaseAccessLayer {
         }
         return false;
     }
-
-    public boolean QuestOrderExists(int questOrder) {
-        String sqlQuery = "SELECT * FROM quests WHERE QuestOrder=" + questOrder;
-        ResultSet rs = QuerySQLRequest(sqlQuery);
-
-        try {
-            if(rs.next()) return true;
-            else return false;
-        } catch (Exception ex) {
-            _logger.Error(ex);
-            return false;
-        }
-    }
-
     public ResultSet GetAllQuests() {
         String sqlQuery = "SELECT * FROM Quests";
         return QuerySQLRequest(sqlQuery);
@@ -312,6 +317,11 @@ public class DatabaseAccessLayer {
 
     public boolean DeleteTaskByQuestId(int questId, String table) {
         String sqlQuery = "DELETE FROM " + table + " WHERE QuestId=" + questId;
+        return ExecuteSQLRequest(sqlQuery);
+    }
+
+    public boolean ResetProgressValues(int questId) {
+        String sqlQuery = "UPDATE PlayerQuestProgress SET QuestValueInt=0, QuestValueBool=false WHERE QuestId=" + questId;
         return ExecuteSQLRequest(sqlQuery);
     }
 

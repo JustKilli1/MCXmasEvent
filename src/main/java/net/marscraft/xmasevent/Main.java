@@ -36,11 +36,11 @@ public final class Main extends JavaPlugin {
 
         _logger.Info("MarsCraft Xmas Event loaded.");
 
-        getServer().getPluginManager().registerEvents(new KillMobListener(_logger, _sql), this);
+        getServer().getPluginManager().registerEvents(new KillMobListener(_logger, _sql, this), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(_logger, _sql), this);
-        getServer().getPluginManager().registerEvents(new PlaceBlockListener(_logger, _sql), this);
+        getServer().getPluginManager().registerEvents(new PlaceBlockListener(_logger, _sql, this), this);
         getCommand("test").setExecutor(new ShowPoint(_logger, _sql));//TODO DEBUG
-        getCommand("mcxmas").setExecutor(new McXmasCommand(_logger, _sql));
+        getCommand("mcxmas").setExecutor(new McXmasCommand(_logger, _sql, this));
     }
 
     @Override
