@@ -108,6 +108,12 @@ public class McXmasCommand implements CommandExecutor {
             case RewardSet:
                 _messages.SendPlayerMessage("Reward §c" + getArgsString(args, 3) + " §aerfolgreich gesetzt.");
                 break;
+            case StartingMessageSet:
+                _messages.SendPlayerMessage("Anfangs Nachricht des Quests wurde erfolgreich gesetzt.");
+                break;
+            case EndMessageSet:
+                _messages.SendPlayerMessage("Beendigungs Nachricht des Quests wurde erfolgreich gesetzt.");
+                break;
         }
     }
     private String getArgsString(String[] args, int starting) {

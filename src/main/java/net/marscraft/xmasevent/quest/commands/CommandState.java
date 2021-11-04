@@ -14,5 +14,7 @@ public enum CommandState {
     InvalidTaskName,
     InvalidBlock,
     InvalidEntityType,
-    RewardSet
+    RewardSet,
+    StartingMessageSet,
+    EndMessageSet
 }

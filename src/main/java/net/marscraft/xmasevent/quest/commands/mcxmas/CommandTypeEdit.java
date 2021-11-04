@@ -25,16 +25,23 @@ public class CommandTypeEdit extends Commandmanager implements ICommandType {
     @Override
     public CommandState ExecuteCommand(String[] args) {
         // /mcxmas edit [questID] SetTask [TaskName] [taskspezifische Values]
+        String commandStr = "";
+        for(int i = 3; i < args.length; i++) { commandStr += args[i] + " "; }
         int questId = getIntFromStr(args[1]);
         if(questId == 0) return CommandState.CantFindQuestId;
         if(args[2].equalsIgnoreCase("SetTask")){
             return doActionsBasedOnTask(questId, args);
         } else if(args[2].equalsIgnoreCase("SetReward")){
             // /mcxmas edit [questID] SetReward [RewardCommandString]
-            String rewardCommandStr = "";
-            for(int i = 3; i < args.length; i++) { rewardCommandStr += args[i] + " "; }
-            _sql.UpdateRewardCommandString(questId, rewardCommandStr);
+
+            _sql.UpdateRewardCommandString(questId, commandStr);
             return CommandState.RewardSet;
+        } else if(args[2].equalsIgnoreCase("SetSMessage")) {
+            _sql.UpdateQuestMessage(questId, commandStr, "StartingMessage");
+            return CommandState.StartingMessageSet;
+        } else if(args[2].equalsIgnoreCase("SetEMessage")) {
+            _sql.UpdateQuestMessage(questId, commandStr, "EndMessage");
+            return CommandState.EndMessageSet;
         } else {
             return CommandState.CommandSyntaxErrorEdit;
         }
