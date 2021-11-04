@@ -97,7 +97,7 @@ public class McXmasCommand implements CommandExecutor {
                 _messages.SendPlayerMessage("Die Quest Id §c" + args[1] + " §aexistiert nicht.");
                 break;
             case InvalidTaskName:
-                _messages.SendPlayerMessage("Der Task mit dem Namen §c" + args[3] + " §aexistiert nicht!");
+                _messages.SendPlayerMessage("Der Task mit dem Namen §c" + args[1] + " §aexistiert nicht!");
                 break;
             case InvalidBlock:
                 _messages.SendPlayerMessage("Der Block §c" + args[4] + " §aist kein gültiger Block");

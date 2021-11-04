@@ -188,7 +188,8 @@ public class DatabaseAccessLayer {
     public boolean UpdateQuestOrder(int questId, int newQuestOrder) {
 
         int oldQuestOrder = GetQuestOrder(questId);
-        if(oldQuestOrder == 0)return false;
+        int lastQuestOrder = GetLastQuestOrder();
+        if(oldQuestOrder == 0) return false;
         String sqlQuery = "";
 
         //if(QuestOrderExists(newQuestOrder)) {
@@ -198,10 +199,12 @@ public class DatabaseAccessLayer {
                     sqlQuery = "UPDATE quests SET QuestOrder=" + newQOrder + " WHERE QuestOrder=" + i;
                     ExecuteSQLRequest(sqlQuery);
                 }
-                sqlQuery = "UPDATE quests SET QuestOrder=" + newQuestOrder + " WHERE QuestId=" + questId;
+                if(newQuestOrder > lastQuestOrder) sqlQuery = "UPDATE quests SET QuestOrder=" + lastQuestOrder + " WHERE QuestId=" + questId;
+                else sqlQuery = "UPDATE quests SET QuestOrder=" + newQuestOrder + " WHERE QuestId=" + questId;
+
                 return ExecuteSQLRequest(sqlQuery);
             } else if(newQuestOrder < oldQuestOrder) {
-                for(int i = GetLastQuestOrder(); i >= newQuestOrder; i--) {
+                for(int i = lastQuestOrder; i >= newQuestOrder; i--) {
                     sqlQuery = "UPDATE quests SET QuestOrder=" + i+1 + " WHERE QuestOrder=" + i;
                     ExecuteSQLRequest(sqlQuery);
                 }
@@ -258,7 +261,7 @@ public class DatabaseAccessLayer {
                 "(QuestId, QuestName, QuestOrder, TaskName) " +
                 "VALUES (" + quest.GetQuestId() + "," +
                 " '" + quest.GetQuestName() + "'," +
-                " null," +
+                (GetLastQuestOrder() + 1) + "," +
                 " '" + taskName + "')";
         return ExecuteSQLRequest(sqlQuery);
     }
