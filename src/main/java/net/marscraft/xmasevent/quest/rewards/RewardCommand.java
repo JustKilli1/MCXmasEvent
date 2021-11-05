@@ -1,6 +1,5 @@
 package net.marscraft.xmasevent.quest.rewards;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class RewardCommand {

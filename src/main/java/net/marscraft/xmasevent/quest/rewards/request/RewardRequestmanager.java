@@ -39,7 +39,6 @@ public class RewardRequestmanager extends Requestmanager{
         ArrayList<String> commands = SplitStringByChar(commandStr, '|');
         for(String command : commands) {
             RewardCommand rewardCommand = GetProcessedCommand(command);
-            //RewardItems, NormalItem=Diamond_Sword 1, CustomItem=[CustomItemId]
             runCommand(rewardCommand);
         }
         return RequestState.SUCCESS;

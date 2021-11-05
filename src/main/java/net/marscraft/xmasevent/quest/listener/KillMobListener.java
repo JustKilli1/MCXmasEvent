@@ -3,9 +3,7 @@ package net.marscraft.xmasevent.quest.listener;
 import net.marscraft.xmasevent.Main;
 import net.marscraft.xmasevent.quest.Quest;
 import net.marscraft.xmasevent.quest.Questmanager;
-import net.marscraft.xmasevent.quest.rewards.request.RewardRequestmanager;
 import net.marscraft.xmasevent.quest.task.tasktype.ITaskType;
-import net.marscraft.xmasevent.quest.task.tasktype.KillMobsTask;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import net.marscraft.xmasevent.shared.messagemanager.IMessagemanager;
@@ -15,9 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
-
-import java.sql.ResultSet;
-import java.util.Locale;
 
 
 public class KillMobListener implements Listener {
@@ -41,12 +36,20 @@ public class KillMobListener implements Listener {
             Player player = (Player) event.getEntity().getKiller();
             _messageManager = new Messagemanager(_logger, player);
             int questId = _sql.GetActivePlayerQuestId(player);
-
             Questmanager questmanager = new Questmanager(_logger, _sql, _plugin);
-            Quest activePlayerQuest = questmanager.GetQuestByQuestId(questId);
+            if(!questmanager.GetTaskManager().IsTaskActive("KillMobsTask", questId)) return;
 
-                if(event.getEntityType() == EntityType.valueOf(questmanager.GetTaskManager().GetKillMobsTaskMobType(questId))){
-                    if(activePlayerQuest.GetTaskType().IsTaskFinished()) questmanager.FinishQuest(questId, player);
+            Quest activePlayerQuest = questmanager.GetQuestByQuestId(questId);
+            if(activePlayerQuest == null) return;
+            EntityType eType = questmanager.GetTaskManager().GetKillMobsTaskMobType(questId);
+            if(eType == null){
+                _logger.Error("EntityType des Task KillMobs konnte nicht geladen werden. Bitte Datenbank überprüfen");
+                _logger.Error("QuestId: " + questId);
+                return;
+            }
+
+                if(event.getEntityType() == eType){
+                    if(activePlayerQuest.GetTaskType().IsTaskFinished(player)) questmanager.FinishQuest(questId, player);
                     else _sql.AddPlayerMobKill(player, questId);
                 }
         }

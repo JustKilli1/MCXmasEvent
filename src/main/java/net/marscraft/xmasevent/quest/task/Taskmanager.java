@@ -8,6 +8,7 @@ import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 
 import java.sql.ResultSet;
 import java.util.HashMap;
@@ -50,11 +51,13 @@ public class Taskmanager {
             return null;
         }
     }
-    public String GetKillMobsTaskMobType(int questId) {
+    public EntityType GetKillMobsTaskMobType(int questId) {
         ResultSet task = _sql.GetTaskByQuestId("KillMobsTask", questId);
         try {
             if(!task.next()) return null;
-            return task.getString("MobType");
+            String mobTypeStr = task.getString("MobType").toUpperCase();
+            _logger.Error(mobTypeStr);//TODO DEBUG
+            return EntityType.valueOf(mobTypeStr);
         } catch (Exception ex) {
             _logger.Error(ex);
             return null;
@@ -65,7 +68,7 @@ public class Taskmanager {
         HashMap<Material, Location> blockInfo = new HashMap<>();
         try {
             if(!rs.next()) return null;
-            Material material = Material.valueOf(rs.getString("BlockType"));
+            Material material = Material.valueOf(rs.getString("BlockType").toUpperCase());
             String world = rs.getString("WorldName");
             Location location = new Location(_plugin.getServer().getWorld(world), rs.getDouble("BlockPositionX"), rs.getDouble("BlockPositionY"), rs.getDouble("BlockPositionZ"));
             blockInfo.put(material, location);
@@ -74,6 +77,9 @@ public class Taskmanager {
             _logger.Error(ex);
             return null;
         }
+    }
+    public boolean IsTaskActive(String taskName, int questId) {
+        return _sql.GetTaskNameByQuestId(questId).equalsIgnoreCase(taskName);
     }
     /*
      * Gets Task By QuestId

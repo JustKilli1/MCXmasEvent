@@ -21,7 +21,7 @@ public class Questmanager {
         _logger = logger;
         _sql = sql;
         _plugin = plugin;
-        Taskmanager _taskmanager = new Taskmanager(_logger, _sql, _plugin);
+        _taskmanager = new Taskmanager(_logger, _sql, _plugin);
     }
 
     public boolean CreateNewQuest(String questName, String taskName) {
@@ -58,22 +58,6 @@ public class Questmanager {
             return null;
         }
 
-    }
-
-    /*
-     * Updates QuestId From Player in PlayerProgressDatabase TODO --> Anhand QuestId wird Task ermittelt
-     * */
-    public boolean UpdatePlayerQuestId() {
-
-        return false;
-    }
-
-    /*
-     * Searches for the Next Quest based on QuestOrder
-     * */
-    private int findNextQuest(int currentQuestId) {
-
-        return 0;
     }
 
     public Taskmanager GetTaskManager() { return  _taskmanager; }

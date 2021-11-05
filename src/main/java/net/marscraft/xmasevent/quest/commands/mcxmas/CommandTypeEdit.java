@@ -7,8 +7,6 @@ import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.entity.Player;
 
-import java.sql.ResultSet;
-
 public class CommandTypeEdit extends Commandmanager implements ICommandType {
 
     private ILogmanager _logger;
@@ -33,16 +31,18 @@ public class CommandTypeEdit extends Commandmanager implements ICommandType {
             return doActionsBasedOnTask(questId, args);
         } else if(args[2].equalsIgnoreCase("SetReward")){
             // /mcxmas edit [questID] SetReward [RewardCommandString]
-
             _sql.UpdateRewardCommandString(questId, commandStr);
             return CommandState.RewardSet;
         } else if(args[2].equalsIgnoreCase("SetSMessage")) {
+            // /mcxmas edit [questID] SetSMessage [Starting Message]
             _sql.UpdateQuestMessage(questId, commandStr, "StartingMessage");
             return CommandState.StartingMessageSet;
         } else if(args[2].equalsIgnoreCase("SetEMessage")) {
+            // /mcxmas edit [questID] SetEMessage [End Message]
             _sql.UpdateQuestMessage(questId, commandStr, "EndMessage");
             return CommandState.EndMessageSet;
         } else if(args[2].equalsIgnoreCase("SetQOrder")){
+            // /mcxmas edit [questID] SetQOrder [new QuestOrder]
             if(args.length != 4)return CommandState.CommandSyntaxErrorEdit;
             if(!(_sql.UpdateQuestOrder(questId, getIntFromStr(args[3])))) return CommandState.FAILED;
             return CommandState.QuestOrderSet;
@@ -56,9 +56,6 @@ public class CommandTypeEdit extends Commandmanager implements ICommandType {
     * PlaceBlockTask Command:
     * /mcxmas edit [questId] SetTask [TaskName] [blockType]
     * */
-
-
-
     private CommandState doActionsBasedOnTask(int questId, String[] args) {
         String taskName = args[3];
         if(!isValidTaskName(taskName)) return CommandState.InvalidTaskName;

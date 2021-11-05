@@ -1,11 +1,7 @@
 package net.marscraft.xmasevent.quest.listener;
 
 import net.marscraft.xmasevent.Main;
-import net.marscraft.xmasevent.quest.Quest;
 import net.marscraft.xmasevent.quest.Questmanager;
-import net.marscraft.xmasevent.quest.task.Taskmanager;
-import net.marscraft.xmasevent.quest.task.tasktype.ITaskType;
-import net.marscraft.xmasevent.quest.task.tasktype.PlaceBlockTask;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.Location;
@@ -15,8 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
-
-import java.sql.ResultSet;
 import java.util.HashMap;
 
 public class PlaceBlockListener implements Listener {
@@ -37,20 +31,21 @@ public class PlaceBlockListener implements Listener {
         int questId = _sql.GetActivePlayerQuestId(player);
 
         Questmanager questmanager = new Questmanager(_logger, _sql, _plugin);
-        Quest activePlayerQuest = questmanager.GetQuestByQuestId(questId);
-
+        if(!questmanager.GetTaskManager().IsTaskActive("PlaceBlockTask", questId)) return;
         HashMap<Material, Location> blockInfo = questmanager.GetTaskManager().GetPlaceBlockTaskBlockInfo(questId);
-        if(blockInfo.keySet().size() != 1){return;}
+        if(blockInfo == null)return;
+        if(blockInfo.keySet().size() != 1)return;
 
         Material blockType = null;
         Location blockLoc = null;
         for(Material key : blockInfo.keySet()) {
             blockType = key;
             blockLoc = blockInfo.get(key);
+
         }
         Block eventBlock = event.getBlock();
         if(blockType == eventBlock.getType()) {
-            if(eventBlock.getLocation().getX() == blockLoc.getX() && eventBlock.getLocation().getY() == blockLoc.getY() && eventBlock.getLocation().getZ() == blockLoc.getZ()) {
+            if(eventBlock.getWorld() == blockLoc.getWorld() && (int)eventBlock.getLocation().getX() == (int)blockLoc.getX() && (int)eventBlock.getLocation().getY() == (int)blockLoc.getY() && (int)eventBlock.getLocation().getZ() == (int)blockLoc.getZ()) {
                 if(_sql.UpdateTaskPlayerBlockPlaced(player)) questmanager.FinishQuest(questId, player);
                 else _logger.Error("PlaceBlockTask von Spieler " + player.getName() + " konnte nicht geupdatet werden!");
             }

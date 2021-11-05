@@ -1,6 +1,5 @@
 package net.marscraft.xmasevent.quest.task.tasktype;
 
-import net.marscraft.xmasevent.quest.rewards.request.RewardRequestmanager;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.Location;
@@ -30,7 +29,7 @@ public class PlaceBlockTask implements ITaskType {
     }
 
     @Override
-    public boolean IsTaskFinished() {
+    public boolean IsTaskFinished(Player player) {
         return false;
     }
 

@@ -38,7 +38,6 @@ public class McXmasCommand implements CommandExecutor {
             commandStateActions(CommandState.CommandSyntaxError, args);
             return false;
         }
-
         if(args[0].equalsIgnoreCase("create")) {
             _commandType = new CommandTypeCreate(_logger, _sql, _plugin, _messages);
             commandStateActions(_commandType.ExecuteCommand(args), args);
