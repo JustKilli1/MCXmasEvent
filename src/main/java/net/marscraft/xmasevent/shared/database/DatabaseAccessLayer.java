@@ -5,11 +5,11 @@ import net.marscraft.xmasevent.shared.configmanager.IConfigmanager;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class DatabaseAccessLayer {
 
@@ -187,33 +187,54 @@ public class DatabaseAccessLayer {
         String sqlQuery = "UPDATE quests SET " + field + "='" + commandStr + "' WHERE QuestId=" + questId;
         return ExecuteSQLRequest(sqlQuery);
     }
-    public boolean UpdateQuestOrder(int questId, int newQuestOrder) {
-
-        int oldQuestOrder = GetQuestOrder(questId);
+    public boolean UpdateQuestOrder(int questId, int newQuestOrder, int oldQuestOrder) {
+        if(newQuestOrder == oldQuestOrder) return true;
         int lastQuestOrder = GetLastQuestOrder();
-        if(oldQuestOrder == 0) return false;
+        int questOrder = newQuestOrder;
+        if(questOrder > lastQuestOrder) questOrder = lastQuestOrder;
+
         String sqlQuery = "";
-
-            if(newQuestOrder > oldQuestOrder){
-                for(int i = oldQuestOrder; i <= newQuestOrder; i++) {
-                    int newQOrder = i - 1;
-                    sqlQuery = "UPDATE quests SET QuestOrder=" + newQOrder + " WHERE QuestOrder=" + i;
-                    ExecuteSQLRequest(sqlQuery);
-                }
-                if(newQuestOrder > lastQuestOrder) sqlQuery = "UPDATE quests SET QuestOrder=" + lastQuestOrder + " WHERE QuestId=" + questId;
-                else sqlQuery = "UPDATE quests SET QuestOrder=" + newQuestOrder + " WHERE QuestId=" + questId;
-
-                return ExecuteSQLRequest(sqlQuery);
-            } else if(newQuestOrder < oldQuestOrder) {
-                for(int i = lastQuestOrder; i >= newQuestOrder; i--) {
-                    sqlQuery = "UPDATE quests SET QuestOrder=" + i+1 + " WHERE QuestOrder=" + i;
-                    ExecuteSQLRequest(sqlQuery);
-                }
-                sqlQuery = "UPDATE quests SET QuestOrder=" + newQuestOrder + " WHERE QuestId=" + questId;
-                return ExecuteSQLRequest(sqlQuery);
-            } else {
-                return true;
+        if(questOrder > oldQuestOrder) {
+            for(int i = oldQuestOrder; i <= questOrder; i++) {
+                int newQOrder = i-1;
+                sqlQuery = "UPDATE quests SET QuestOrder=" + newQOrder + " WHERE QuestOrder=" + i;
+                if(!ExecuteSQLRequest(sqlQuery)) return false;
             }
+        } else if(newQuestOrder < oldQuestOrder) {
+            for(int i = oldQuestOrder; i >= questOrder; i--) {
+                int newQOrder = i+1;
+                sqlQuery = "UPDATE quests SET QuestOrder=" + newQOrder + " WHERE QuestOrder=" + i;
+                if(!ExecuteSQLRequest(sqlQuery)) return false;
+            }
+        }
+        sqlQuery = "UPDATE quests SET QuestOrder=" + questOrder + " WHERE QuestId=" + questId;
+        return ExecuteSQLRequest(sqlQuery);
+    }
+    public boolean UpdateALlQuestIds() {
+        String sqlQuery = "SELECT * FROM quests";
+        int lastQuestId = GetLastQuestId();
+        ArrayList<String> questNames = new ArrayList<>();
+        ArrayList<String> taskNames = new ArrayList<>();
+        ArrayList<Integer> oldQuestIds = new ArrayList<>();
+        ResultSet rs = QuerySQLRequest(sqlQuery);
+        try {
+            while (rs.next()){
+                questNames.add(rs.getString("QuestName"));
+                taskNames.add(rs.getString("TaskName"));
+                oldQuestIds.add(rs.getInt("QuestId"));
+            }
+        } catch (Exception ex) {
+            _logger.Error(ex);
+            return false;
+        }
+        for(int i = 1; i < lastQuestId; i++) {
+            sqlQuery = "UPDATE quests Set QuestId=" + i + " WHERE QuestName='" + questNames.get(i-1) + "'";
+            if(!ExecuteSQLRequest(sqlQuery))return false;
+            if(taskNames.size() == i) {
+                sqlQuery = "UPDATE " + taskNames.get(i-1) + " Set QuestId=" + i + " WHERE QuestId=" + oldQuestIds.get(i-1);
+            }
+        }
+        return true;
     }
     public boolean SetNextPlayerQuest(String playerUUID, int questId) {
         int nextQuestId = GetNextQuestQuestID(questId);
@@ -317,6 +338,10 @@ public class DatabaseAccessLayer {
 
     public boolean DeleteTaskByQuestId(int questId, String table) {
         String sqlQuery = "DELETE FROM " + table + " WHERE QuestId=" + questId;
+        return ExecuteSQLRequest(sqlQuery);
+    }
+    public boolean DeleteQuestFromQuestsTable(int questId) {
+        String sqlQuery = "DELETE FROM quests WHERE QuestId=" + questId;
         return ExecuteSQLRequest(sqlQuery);
     }
 

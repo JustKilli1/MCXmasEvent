@@ -34,12 +34,12 @@ public class CommandTypeCreate extends Commandmanager implements ICommandType {
         String questName = args[2];
         String taskName = args[1];
 
-        if(!isValidTaskName(taskName)) return CommandState.InvalidTaskName;
-
-        for(int i = 3; i < args.length; i++) {
-            questName += " " + args[i];
+        if(!IsValidTaskName(taskName)) return CommandState.InvalidTaskName;
+        if(args.length > 3) {
+            for (int i = 3; i < args.length; i++) {
+                questName += " " + args[i];
+            }
         }
-
         boolean state = _sql.QuestExists(questName);
         if(state) return CommandState.QuestAlreadyExists;
 

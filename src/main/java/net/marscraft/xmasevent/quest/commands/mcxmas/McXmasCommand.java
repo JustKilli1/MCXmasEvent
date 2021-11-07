@@ -57,6 +57,9 @@ public class McXmasCommand implements CommandExecutor {
             CommandState cState = _commandType.ExecuteCommand(args);
             commandStateActions(cState, args);
             return true;
+        } else if(args[0].equalsIgnoreCase("delete")){
+            _commandType = new CommandTypeDelete(_logger, _sql);
+            commandStateActions(_commandType.ExecuteCommand(args), args);
         } else {
             commandStateActions(CommandState.CommandSyntaxError, args);
             return false;
@@ -93,13 +96,16 @@ public class McXmasCommand implements CommandExecutor {
             case CommandSyntaxErrorQuests:
                 _messages.SendPlayerMessage("Syntax fehler benutze: §c/mcxmas quests list");
                 break;
+            case CommandSyntaxErrorDelete:
+                _messages.SendPlayerMessage("Syntax fehler benutze: §c/mcxmas delete [questId]");
+                break;
             case QuestIdWrongFormat:
                 _messages.SendPlayerMessage("Bitte gebe eine gültige §cQuestId§a an.");
             case CantFindQuestId:
                 _messages.SendPlayerMessage("Die Quest Id §c" + args[1] + " §aexistiert nicht.");
                 break;
             case InvalidTaskName:
-                _messages.SendPlayerMessage("Der Task mit dem Namen §c" + args[3] + " §aexistiert nicht!");
+                _messages.SendPlayerMessage("Der Task mit dem Namen §c" + args[1] + " §aexistiert nicht!");
                 break;
             case InvalidBlock:
                 _messages.SendPlayerMessage("Der Block §c" + args[4] + " §aist kein gültiger Block");
@@ -118,6 +124,18 @@ public class McXmasCommand implements CommandExecutor {
                 break;
             case QuestOrderSet:
                 _messages.SendPlayerMessage("QuestOrder wurde erfolgreich gesetzt.");
+                break;
+            case CouldNotDeleteTask:
+                _messages.SendPlayerMessage("Es ist ein Fehler beim löschen der Quest aufgetreten: Task konnte nicht gelöscht werden." );
+                break;
+            case CouldNotDeleteQuestFromQuestTable:
+                _messages.SendPlayerMessage("Es ist ein Fehler beim löschen der Quest aufgetreten: Quest konnte nicht gelöscht werden." );
+                break;
+            case CouldNotUpdateQuestIds:
+                _messages.SendPlayerMessage("Es ist ein Fehler beim löschen der Quest aufgetreten: QuestIds konnten nicht geupdatet werden." );
+                break;
+            case CouldNotUpdateQuestOrder:
+                _messages.SendPlayerMessage("Es ist ein Fehler beim löschen der Quest aufgetreten: QuestOrder konnte nicht geupdatet werden." );
                 break;
         }
     }
