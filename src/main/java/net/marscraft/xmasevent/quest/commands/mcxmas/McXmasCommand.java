@@ -40,7 +40,7 @@ public class McXmasCommand extends Commandmanager implements CommandExecutor {
         Player player = (Player) sender;
         _messages = new Messagemanager(_logger, player);
         int questId = 0;
-        if(!args[0].equalsIgnoreCase("create")) {
+        if(!args[0].equalsIgnoreCase("create") && !args[0].equalsIgnoreCase("quests")) {
             questId = GetIntFromStr(args[1]);
             if (questId == 0) {
                 commandStateActions(CantFindQuestId, args);

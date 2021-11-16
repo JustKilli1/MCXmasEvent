@@ -248,28 +248,24 @@ public class DatabaseAccessLayer {
         return ExecuteSQLRequest(sqlQuery);
     }
     public boolean UpdateALlQuestIds() {
-        String sqlQuery = "SELECT * FROM quests";
+        String sqlQuery = "SELECT * FROM quests ORDER BY QuestId";
         int lastQuestId = GetLastQuestId();
-        ArrayList<String> questNames = new ArrayList<>();
-        ArrayList<String> taskNames = new ArrayList<>();
-        ArrayList<Integer> oldQuestIds = new ArrayList<>();
         ResultSet rs = QuerySQLRequest(sqlQuery);
         try {
+            int newQuestId = 1;
             while (rs.next()){
-                questNames.add(rs.getString("QuestName"));
-                taskNames.add(rs.getString("TaskName"));
-                oldQuestIds.add(rs.getInt("QuestId"));
+                    sqlQuery = "UPDATE quests Set QuestId=" + newQuestId + " WHERE QuestName='" + rs.getString("QuestName") + "'";
+                    if (!ExecuteSQLRequest(sqlQuery)) _logger.Error("Could Not Update quests Table");
+                    int oldQuestID = rs.getInt("QuestId");
+                    sqlQuery = "UPDATE " + rs.getString("TaskName") + " SET QuestId=" + newQuestId + " WHERE QuestId=" + oldQuestID;
+                    if (!ExecuteSQLRequest(sqlQuery)) _logger.Error("Could Not Update task Table");
+                    sqlQuery = "UPDATE Rewards SET QuestId=" + newQuestId + " WHERE QuestId=" + oldQuestID;
+                    if (!ExecuteSQLRequest(sqlQuery)) _logger.Error("Could Not Update Rewards Table");
+                    newQuestId++;
             }
         } catch (Exception ex) {
             _logger.Error(ex);
             return false;
-        }
-        for(int i = 1; i < lastQuestId; i++) {
-            sqlQuery = "UPDATE quests Set QuestId=" + i + " WHERE QuestName='" + questNames.get(i-1) + "'";
-            if(!ExecuteSQLRequest(sqlQuery))return false;
-            if(taskNames.size() == i) {
-                sqlQuery = "UPDATE " + taskNames.get(i-1) + " Set QuestId=" + i + " WHERE QuestId=" + oldQuestIds.get(i-1);
-            }
         }
         return true;
     }
@@ -280,7 +276,7 @@ public class DatabaseAccessLayer {
         return ExecuteSQLRequest(sqlQuery);
     }
     public int GetNextQuestQuestID(int questOrder) {
-        String sqlQuery="SELECT * FROM quests WHERE QuestOrder>" + questOrder + " AND QuestSetupFinished=true";
+        String sqlQuery="SELECT * FROM quests WHERE QuestOrder>" + questOrder + " AND QuestSetupFinished=true ORDER BY QuestOrder";
         ResultSet rs = QuerySQLRequest(sqlQuery);
 
         try {
@@ -384,7 +380,10 @@ public class DatabaseAccessLayer {
         String sqlQuery = "DELETE FROM quests WHERE QuestId=" + questId;
         return ExecuteSQLRequest(sqlQuery);
     }
-
+    public boolean DeleteQuestRewards(int questId) {
+        String sqlQuery = "DELETE FROM rewards WHERE QuestId=" + questId;
+        return ExecuteSQLRequest(sqlQuery);
+    }
     public boolean ResetProgressValues(int questId) {
         String sqlQuery = "UPDATE PlayerQuestProgress SET QuestValueInt=0, QuestValueBool=false WHERE QuestId=" + questId;
         return ExecuteSQLRequest(sqlQuery);
@@ -411,9 +410,7 @@ public class DatabaseAccessLayer {
         } else {
             return false;
         }
-
     }
-
     public ResultSet QuerySQLRequest(String sqlQuery) {
         checkAndReconnectConnection();
         if (_mySql.IsConnected()) {

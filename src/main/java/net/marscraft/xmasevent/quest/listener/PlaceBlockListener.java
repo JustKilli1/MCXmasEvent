@@ -45,7 +45,7 @@ public class PlaceBlockListener implements Listener {
         }
         Block eventBlock = event.getBlock();
         if(blockType == eventBlock.getType()) {
-            if(eventBlock.getWorld() == blockLoc.getWorld() && (int)eventBlock.getLocation().getX() == (int)blockLoc.getX() && (int)eventBlock.getLocation().getY() == (int)blockLoc.getY() && (int)eventBlock.getLocation().getZ() == (int)blockLoc.getZ()) {
+            if(eventBlock.getWorld() == blockLoc.getWorld() && eventBlock.getLocation().getX() == blockLoc.getX() && eventBlock.getLocation().getY() == blockLoc.getY() && eventBlock.getLocation().getZ() == blockLoc.getZ()) {
                 if(_sql.UpdateTaskPlayerBlockPlaced(player)) questmanager.FinishQuest(questId, player);
                 else _logger.Error("PlaceBlockTask von Spieler " + player.getName() + " konnte nicht geupdatet werden!");
             }

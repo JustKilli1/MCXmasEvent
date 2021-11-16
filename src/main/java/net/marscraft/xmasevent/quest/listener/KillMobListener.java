@@ -21,8 +21,6 @@ public class KillMobListener implements Listener {
     private DatabaseAccessLayer _sql;
     private Main _plugin;
     private IMessagemanager _messageManager;
-    private ITaskType _taskType;
-    private Questmanager _questManager;
 
     public KillMobListener(ILogmanager logger, DatabaseAccessLayer sql, Main plugin) {
         _logger = logger;
