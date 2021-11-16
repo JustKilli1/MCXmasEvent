@@ -47,7 +47,6 @@ public class KillMobListener implements Listener {
                 _logger.Error("QuestId: " + questId);
                 return;
             }
-
                 if(event.getEntityType() == eType){
                     if(activePlayerQuest.GetTaskType().IsTaskFinished(player)) questmanager.FinishQuest(questId, player);
                     else _sql.AddPlayerMobKill(player, questId);

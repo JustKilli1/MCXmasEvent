@@ -56,7 +56,6 @@ public class Taskmanager {
         try {
             if(!task.next()) return null;
             String mobTypeStr = task.getString("MobType").toUpperCase();
-            _logger.Error(mobTypeStr);//TODO DEBUG
             return EntityType.valueOf(mobTypeStr);
         } catch (Exception ex) {
             _logger.Error(ex);
@@ -79,19 +78,7 @@ public class Taskmanager {
         }
     }
     public boolean IsTaskActive(String taskName, int questId) {
+        if(_sql.GetTaskNameByQuestId(questId) == null) return false;
         return _sql.GetTaskNameByQuestId(questId).equalsIgnoreCase(taskName);
     }
-    /*
-     * Gets Task By QuestId
-     * --> Sucht nach QuestId im Quests Table
-     * --> Wenn Eintrag gefunden holt TaskName aus Quests Table
-     * --> Sucht anhand des TaskNames passende Taskspezifische Datenbank raus
-     * --> Sucht Anhand der QuestId in der Taskspezifischen Tabelle nach dem rcihtigen Eintrag
-     * --> Verarbeitet Daten und erstellt neuen Task
-     * */
-    private boolean getTaskByQuestId() {
-
-        return false;
-    }
-
 }

@@ -53,6 +53,7 @@ public final class Main extends JavaPlugin {
         _sql.CreateQuestsTable();
         _sql.CreateKillMobsTaskTable();
         _sql.CreatePlaceBlockTaskTable();
+        _sql.CreateRewardsTable();
         return true;
     }
 

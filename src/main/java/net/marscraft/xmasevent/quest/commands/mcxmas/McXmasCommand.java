@@ -2,6 +2,7 @@ package net.marscraft.xmasevent.quest.commands.mcxmas;
 
 import net.marscraft.xmasevent.Main;
 import net.marscraft.xmasevent.quest.commands.CommandState;
+import net.marscraft.xmasevent.quest.commands.Commandmanager;
 import net.marscraft.xmasevent.quest.commands.ICommandType;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
@@ -13,7 +14,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class McXmasCommand implements CommandExecutor {
+import java.sql.ResultSet;
+
+import static net.marscraft.xmasevent.quest.commands.CommandState.CantFindQuestId;
+
+public class McXmasCommand extends Commandmanager implements CommandExecutor {
 
     private ILogmanager _logger;
     private DatabaseAccessLayer _sql;
@@ -22,6 +27,7 @@ public class McXmasCommand implements CommandExecutor {
     private ICommandType _commandType;
 
     public McXmasCommand(ILogmanager logger, DatabaseAccessLayer sql, Main plugin) {
+        super(logger);
         _logger = logger;
         _sql = sql;
         _plugin = plugin;
@@ -33,7 +39,18 @@ public class McXmasCommand implements CommandExecutor {
         if(!(sender instanceof Player)) return false;
         Player player = (Player) sender;
         _messages = new Messagemanager(_logger, player);
-
+        int questId = 0;
+        if(!args[0].equalsIgnoreCase("create")) {
+            questId = GetIntFromStr(args[1]);
+            if (questId == 0) {
+                commandStateActions(CantFindQuestId, args);
+                return false;
+            }
+            if (questId > _sql.GetLastQuestId()) {
+                commandStateActions(CantFindQuestId, args);
+                return false;
+            }
+        }
         if(args.length == 0) {
             commandStateActions(CommandState.CommandSyntaxError, args);
             return false;
@@ -49,13 +66,14 @@ public class McXmasCommand implements CommandExecutor {
                 return true;
             }
         } else if(args[0].equalsIgnoreCase("edit")) {
-            if(args.length < 4){
+            if(args.length < 3){
                 commandStateActions(CommandState.CommandSyntaxErrorEdit, args);
                 return false;
             }
             _commandType = new CommandTypeEdit(_logger, _sql, player);
             CommandState cState = _commandType.ExecuteCommand(args);
             commandStateActions(cState, args);
+            if(questSetupFinished(args)) _sql.QuestSetupFinished(questId);
             return true;
         } else if(args[0].equalsIgnoreCase("delete")){
             _commandType = new CommandTypeDelete(_logger, _sql);
@@ -65,6 +83,22 @@ public class McXmasCommand implements CommandExecutor {
             return false;
         }
         return false;
+    }
+    private boolean questSetupFinished(String[] args) {
+
+        Commandmanager cm = new Commandmanager(_logger);
+        int questId = cm.GetIntFromStr(args[1]);
+        if(questId == 0) return false;
+        String taskName = _sql.GetTaskNameByQuestId(questId);
+        ResultSet rs = _sql.GetTaskByQuestId(taskName, questId);
+        try {
+            if (!rs.next()) return false;
+        } catch (Exception ex) {
+            _logger.Error(ex);
+            return false;
+        }
+        if(_sql.GetQuestReward(questId).size() == 0) return false;
+        return true;
     }
     private void commandStateActions(CommandState commandState, String[] args) {
 
@@ -113,8 +147,11 @@ public class McXmasCommand implements CommandExecutor {
             case InvalidEntityType:
                 _messages.SendPlayerMessage("Der Mob §c" + args[5] + " §aist kein gültiger Mob");
                 break;
+            case InvalidEntityAmount:
+                _messages.SendPlayerMessage("§c" + args[4] + " §aist keine gültige Zahl");
+                break;
             case RewardSet:
-                _messages.SendPlayerMessage("Reward §c" + getArgsString(args, 3) + " §aerfolgreich gesetzt.");
+                _messages.SendPlayerMessage("Reward §cerfolgreich §agesetzt.");
                 break;
             case StartingMessageSet:
                 _messages.SendPlayerMessage("Anfangs Nachricht des Quests wurde erfolgreich gesetzt.");
@@ -140,6 +177,7 @@ public class McXmasCommand implements CommandExecutor {
         }
     }
     private String getArgsString(String[] args, int starting) {
+        if(starting >= args.length) return null;
         String argsString = args[starting];
         for(int i = starting + 1; i < args.length; i++) { argsString += " " + args[i]; }
         return argsString;

@@ -30,8 +30,12 @@ public class DatabaseAccessLayer {
         return ExecuteSQLRequest(sqlQuery);
     }
     public boolean CreateQuestsTable() {
-        String sqlQuery = "CREATE TABLE IF NOT EXISTS Quests (QuestId INT NOT NULL, QuestName VARCHAR(100) NOT NULL,QuestOrder INT, TaskName VARCHAR(100), RewardString VARCHAR(200)," +
+        String sqlQuery = "CREATE TABLE IF NOT EXISTS Quests (QuestId INT NOT NULL, QuestName VARCHAR(100) NOT NULL,QuestOrder INT, TaskName VARCHAR(100)," +
                 " StartingMessage VARCHAR(100) DEFAULT 'Not Set', EndMessage VARCHAR(100) DEFAULT 'Not Set', QuestSetupFinished boolean DEFAULT false);";
+        return ExecuteSQLRequest(sqlQuery);
+    }
+    public boolean CreateRewardsTable() {
+        String sqlQuery = "CREATE TABLE IF NOT EXISTS Rewards (RewardId INT NOT NULL, QuestId INT NOT NULL, RewardName VARCHAR(100), Reward LONGTEXT);";
         return ExecuteSQLRequest(sqlQuery);
     }
     public boolean CreateKillMobsTaskTable() {
@@ -92,6 +96,28 @@ public class DatabaseAccessLayer {
             return 0;
         }
     }
+    public int GetLastRewardId() {
+        String sqlQuery = "SELECT * FROM rewards ORDER BY RewardId DESC LIMIT 1";
+        ResultSet rs = QuerySQLRequest(sqlQuery);
+
+        try {
+            if(!rs.next()) return 0;
+            else return rs.getInt("RewardId");
+        } catch (Exception ex) {
+            _logger.Error(ex);
+            return 0;
+        }
+    }
+    public boolean AddNewReward(String rewardName, String reward, int questId) {
+        int rewardId = GetLastRewardId() + 1;
+        String sqlQuery = "INSERT INTO rewards (RewardId, QuestId, RewardName, Reward)" +
+                "VALUES (" +
+                rewardId + "," +
+                questId + ",'" +
+                rewardName + "','" +
+                reward + "')";
+        return ExecuteSQLRequest(sqlQuery);
+    }
 
     public boolean CreateKillMobsTask(int taskId, int questId, int neededMobs, String mobType) {
 
@@ -109,6 +135,10 @@ public class DatabaseAccessLayer {
     }
     public boolean UpdateQuestTaskName(int questId, String taskName) {
         String sqlQuery = "UPDATE Quests SET TaskName='" + taskName + "' WHERE QuestId=" + questId;
+        return ExecuteSQLRequest(sqlQuery);
+    }
+    public boolean QuestSetupFinished(int questId) {
+        String sqlQuery = "UPDATE Quests SET QuestSetupFinished=true WHERE QuestId=" + questId;
         return ExecuteSQLRequest(sqlQuery);
     }
     public boolean UpdatePlaceBlockTask(int questId, String blockType, Location location) {
@@ -147,13 +177,25 @@ public class DatabaseAccessLayer {
         }
         return -1;
     }
-    public String GetRewardCommand(int questId) {
-        String sqlQuery = "SELECT * FROM Quests WHERE QuestId=" + questId;
+    public ArrayList<String> GetQuestReward(int questId) {
+        ArrayList<String> rewards = new ArrayList<>();
+        String sqlQuery = "SELECT * FROM Rewards WHERE QuestId=" + questId;
         ResultSet rs = QuerySQLRequest(sqlQuery);
-
         try {
-            if(!rs.next())return null;
-            return rs.getString("RewardString");
+            while(rs.next()) { rewards.add(rs.getString("Reward")); }
+            return rewards;
+        } catch (Exception ex) {
+            _logger.Error(ex);
+            return null;
+        }
+    }
+    public ArrayList<String> GetQuestRewardNames(int questId) {
+        ArrayList<String> rewards = new ArrayList<>();
+        String sqlQuery = "SELECT * FROM Rewards WHERE QuestId=" + questId;
+        ResultSet rs = QuerySQLRequest(sqlQuery);
+        try {
+            while(rs.next()) { rewards.add(rs.getString("RewardName")); }
+            return rewards;
         } catch (Exception ex) {
             _logger.Error(ex);
             return null;
@@ -176,11 +218,6 @@ public class DatabaseAccessLayer {
         int newCount =  oldCount + 1;
 
         String sqlQuery = "UPDATE PlayerQuestProgress SET QuestValueInt=" + newCount + " WHERE PlayerUUID='" + player.getUniqueId().toString() + "'";
-        return ExecuteSQLRequest(sqlQuery);
-    }
-
-    public boolean UpdateRewardCommandString(int questId, String rewardCommandStr) {
-        String sqlQuery = "UPDATE quests SET RewardString='" + rewardCommandStr + "' WHERE QuestId=" + questId;
         return ExecuteSQLRequest(sqlQuery);
     }
     public boolean UpdateQuestMessage(int questId, String commandStr, String field) {
@@ -237,13 +274,13 @@ public class DatabaseAccessLayer {
         return true;
     }
     public boolean SetNextPlayerQuest(String playerUUID, int questId) {
-        int nextQuestId = GetNextQuestQuestID(questId);
+        int questOrder = GetQuestOrder(questId);
+        int nextQuestId = GetNextQuestQuestID(questOrder);
         String sqlQuery = "UPDATE PlayerQuestProgress SET QuestId=" + nextQuestId + " WHERE PlayerUUID='" + playerUUID + "'";
         return ExecuteSQLRequest(sqlQuery);
     }
-    public int GetNextQuestQuestID(int oldQuestId) {
-        int newQuestOrder = GetQuestOrder(oldQuestId) + 1;
-        String sqlQuery="SELECT * FROM quests WHERE QuestOrder=" + newQuestOrder;
+    public int GetNextQuestQuestID(int questOrder) {
+        String sqlQuery="SELECT * FROM quests WHERE QuestOrder>" + questOrder + " AND QuestSetupFinished=true";
         ResultSet rs = QuerySQLRequest(sqlQuery);
 
         try {
@@ -290,9 +327,12 @@ public class DatabaseAccessLayer {
             _logger.Error(ex);
             return;
         }
+        int questId = GetNextQuestQuestID(0);
+        if (questId == 0) return;
         sqlQuery  = "INSERT INTO PlayerQuestProgress (PlayerUUID, PlayerName, QuestId, QuestValueInt) VALUES ('" +
                 player.getUniqueId().toString() + "', '" +
-                player.getName() + "', 1, 0);";
+                player.getName() + "', " +
+                questId + ", 0);";
 
         ExecuteSQLRequest(sqlQuery);
     }

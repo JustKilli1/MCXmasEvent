@@ -1,6 +1,5 @@
 package net.marscraft.xmasevent.quest.commands.mcxmas;
 
-import net.marscraft.xmasevent.Main;
 import net.marscraft.xmasevent.quest.commands.CommandState;
 import net.marscraft.xmasevent.quest.commands.Commandmanager;
 import net.marscraft.xmasevent.quest.commands.ICommandType;
@@ -23,6 +22,7 @@ public class CommandTypeDelete extends Commandmanager implements ICommandType {
         if(args.length != 2) return CommandState.CommandSyntaxErrorDelete;
         int questId = GetIntFromStr(args[1]);
         int questOrder = _sql.GetQuestOrder(questId);
+        if(questOrder == 0) return CommandState.CantFindQuestId;
         if(questOrder == _sql.GetLastQuestOrder()) questOrder -= 1;
         String taskName = _sql.GetTaskNameByQuestId(questId);
         if(!_sql.DeleteTaskByQuestId(questId, taskName)) return CommandState.CouldNotDeleteTask;

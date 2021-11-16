@@ -17,7 +17,7 @@ public class Rewardmanager {
         _player = player;
     }
 
-    public boolean EnoughSpaceInInventory(int neededSpace) {
+    public boolean EnoughSpaceInInventory(int neededSpace, Player player) {
         int space = 0;
         for(ItemStack iStack : getPlayerInventory()) {
             if(iStack == null) {
@@ -33,20 +33,4 @@ public class Rewardmanager {
         for(int i = 0; i < 4*9; i++) { playerInventory.add(_player.getInventory().getItem(i)); }
         return playerInventory;
     }
-    public boolean IsValidItem(String item) {
-        try {
-            Material newMaterial = Material.valueOf(item.toUpperCase());
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
-    }
-    public int GetIntFromString(String strInt) {
-        try {
-            return Integer.parseInt(strInt);
-        } catch (Exception ex) {
-            return 0;
-        }
-    }
-
 }
