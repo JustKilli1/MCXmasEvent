@@ -11,7 +11,7 @@ public interface ITaskType {
     /*
     * Check if the Task is finished
     * */
-    public boolean IsTaskFinished();
+    public boolean IsTaskFinished(Player player);
 
     public String GetTaskName();
 

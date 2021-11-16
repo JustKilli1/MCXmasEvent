@@ -12,7 +12,7 @@ public class Commandmanager {
         _logger = logger;
     }
 
-    public boolean isValidTaskName(String taskName) {
+    public boolean IsValidTaskName(String taskName) {
         switch (taskName.toLowerCase()) {
             case "killmobstask":
                 return true;
@@ -22,7 +22,7 @@ public class Commandmanager {
                 return false;
         }
     }
-    public boolean isValidBlock(String block) {
+    public boolean IsValidBlock(String block) {
         try {
             Material material = Material.valueOf(block.toUpperCase());
             if(!material.isBlock()) return false;
@@ -31,7 +31,7 @@ public class Commandmanager {
             return false;
         }
     }
-    public boolean isValidEntityType(String entityType) {
+    public boolean IsValidEntityType(String entityType) {
         try {
             EntityType.valueOf(entityType.toUpperCase());
             return true;
@@ -39,11 +39,10 @@ public class Commandmanager {
             return false;
         }
     }
-    public int getIntFromStr(String target) {
+    public int GetIntFromStr(String target) {
         try {
             return Integer.parseInt(target);
         } catch (Exception ex){
-            _logger.Error(ex);
             return 0;
         }
     }

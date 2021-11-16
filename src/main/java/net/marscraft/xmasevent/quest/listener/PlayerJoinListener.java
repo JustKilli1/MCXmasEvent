@@ -1,6 +1,5 @@
 package net.marscraft.xmasevent.quest.listener;
 
-import net.marscraft.xmasevent.quest.Quest;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.event.EventHandler;
