@@ -1,5 +1,6 @@
 package net.marscraft.xmasevent.quest.commands.mcxmas;
 
+import net.marscraft.xmasevent.Main;
 import net.marscraft.xmasevent.quest.Quest;
 import net.marscraft.xmasevent.quest.Questmanager;
 import net.marscraft.xmasevent.quest.commands.CommandState;
@@ -13,16 +14,18 @@ public class CommandTypeCreate extends Commandmanager implements ICommandType {
 
     private ILogmanager _logger;
     private DatabaseAccessLayer _sql;
+    private Main _plugin;
     private IMessagemanager _messages;
     private Quest _quest;
     private Questmanager _questmanager;
 
-    public CommandTypeCreate(ILogmanager logger, DatabaseAccessLayer sql, IMessagemanager messages) {
+    public CommandTypeCreate(ILogmanager logger, DatabaseAccessLayer sql, Main plugin, IMessagemanager messages) {
         super(logger);
         _logger = logger;
         _sql = sql;
         _messages = messages;
-        _questmanager = new Questmanager(_logger, _sql);
+        _plugin = plugin;
+        _questmanager = new Questmanager(_logger, _sql, plugin);
     }
 
     public CommandState ExecuteCommand(String[] args) {
@@ -31,12 +34,12 @@ public class CommandTypeCreate extends Commandmanager implements ICommandType {
         String questName = args[2];
         String taskName = args[1];
 
-        if(!isValidTaskName(taskName)) return CommandState.InvalidTaskName;
-
-        for(int i = 3; i < args.length; i++) {
-            questName += " " + args[i];
+        if(!IsValidTaskName(taskName)) return CommandState.InvalidTaskName;
+        if(args.length > 3) {
+            for (int i = 3; i < args.length; i++) {
+                questName += " " + args[i];
+            }
         }
-
         boolean state = _sql.QuestExists(questName);
         if(state) return CommandState.QuestAlreadyExists;
 

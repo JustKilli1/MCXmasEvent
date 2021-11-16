@@ -10,9 +10,20 @@ public enum CommandState {
     CommandSyntaxErrorCreate,
     CommandSyntaxErrorEdit,
     CommandSyntaxErrorQuests,
+    CommandSyntaxErrorDelete,
     CantFindQuestId,
     InvalidTaskName,
     InvalidBlock,
     InvalidEntityType,
-    RewardSet
+    InvalidEntityAmount,
+    RewardSet,
+    CouldNotSetReward,
+    StartingMessageSet,
+    EndMessageSet,
+    QuestOrderSet,
+    CouldNotDeleteQuestFromQuestTable,
+    CouldNotDeleteQuestRewards,
+    CouldNotDeleteTask,
+    CouldNotUpdateQuestOrder,
+    CouldNotUpdateQuestIds
 }
