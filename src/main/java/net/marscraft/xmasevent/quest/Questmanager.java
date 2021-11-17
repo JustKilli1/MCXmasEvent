@@ -36,7 +36,7 @@ public class Questmanager {
 
     public boolean FinishQuest(int questId, Player player) {
         ArrayList<String> rewardNames = _sql.GetQuestRewardNames(questId);
-        ArrayList<String> rewards = _sql.GetQuestReward(questId);
+        ArrayList<String> rewards = _sql.GetQuestRewardStr(questId);
         for(int i = 0; i < rewardNames.size(); i++) {
             IRewardType rewardType = getRewardType(rewardNames.get(i), player, questId, rewards.get(i));
             rewardType.GivePlayerReward();

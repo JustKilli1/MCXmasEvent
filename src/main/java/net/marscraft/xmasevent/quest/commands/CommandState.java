@@ -20,6 +20,7 @@ public enum CommandState {
     CouldNotSetReward,
     StartingMessageSet,
     EndMessageSet,
+    DescriptionSet,
     QuestOrderSet,
     CouldNotDeleteQuestFromQuestTable,
     CouldNotDeleteQuestRewards,

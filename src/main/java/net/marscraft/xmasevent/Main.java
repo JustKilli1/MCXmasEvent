@@ -2,6 +2,8 @@ package net.marscraft.xmasevent;
 
 import net.marscraft.xmasevent.quest.commands.ShowPoint;
 import net.marscraft.xmasevent.quest.commands.mcxmas.McXmasCommand;
+import net.marscraft.xmasevent.quest.commands.usercommands.QuestsCommand;
+import net.marscraft.xmasevent.quest.listener.InventoryClickListener;
 import net.marscraft.xmasevent.quest.listener.KillMobListener;
 import net.marscraft.xmasevent.quest.listener.PlaceBlockListener;
 import net.marscraft.xmasevent.quest.listener.PlayerJoinListener;
@@ -33,14 +35,9 @@ public final class Main extends JavaPlugin {
         _logger.Info("Creating required Databases...");
         createDatabaseTable();
         _logger.Info("All Databases created.");
-
+        registerListener();
+        registerCommands();
         _logger.Info("MarsCraft Xmas Event loaded.");
-
-        getServer().getPluginManager().registerEvents(new KillMobListener(_logger, _sql, this), this);
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(_logger, _sql), this);
-        getServer().getPluginManager().registerEvents(new PlaceBlockListener(_logger, _sql, this), this);
-        getCommand("test").setExecutor(new ShowPoint(_logger, _sql));//TODO DEBUG
-        getCommand("mcxmas").setExecutor(new McXmasCommand(_logger, _sql, this));
     }
 
     @Override
@@ -54,6 +51,19 @@ public final class Main extends JavaPlugin {
         _sql.CreateKillMobsTaskTable();
         _sql.CreatePlaceBlockTaskTable();
         _sql.CreateRewardsTable();
+        return true;
+    }
+    private boolean registerListener() {
+        getServer().getPluginManager().registerEvents(new KillMobListener(_logger, _sql, this), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(_logger, _sql), this);
+        getServer().getPluginManager().registerEvents(new PlaceBlockListener(_logger, _sql, this), this);
+        getServer().getPluginManager().registerEvents(new InventoryClickListener(_logger, _sql, this), this);
+        return true;
+    }
+    private boolean registerCommands() {
+        getCommand("test").setExecutor(new ShowPoint(_logger, _sql));//TODO DEBUG
+        getCommand("mcxmas").setExecutor(new McXmasCommand(_logger, _sql, this));
+        getCommand("quests").setExecutor(new QuestsCommand(_logger, _sql, this));
         return true;
     }
 

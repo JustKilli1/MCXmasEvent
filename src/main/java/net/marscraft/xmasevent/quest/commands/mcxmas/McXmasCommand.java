@@ -97,7 +97,7 @@ public class McXmasCommand extends Commandmanager implements CommandExecutor {
             _logger.Error(ex);
             return false;
         }
-        if(_sql.GetQuestReward(questId).size() == 0) return false;
+        if(_sql.GetQuestRewardStr(questId).size() == 0) return false;
         return true;
     }
     private void commandStateActions(CommandState commandState, String[] args) {

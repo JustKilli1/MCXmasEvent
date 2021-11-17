@@ -33,15 +33,17 @@ public class Taskmanager {
                 case "KillMobsTask":
                     int neededMobs = rs.getInt("NeededMobs");
                     String mobType = rs.getString("MobType");
-                    return new KillMobsTask(_logger, _sql, questId, neededMobs, mobType);
+                    String mobTypeGer = rs.getString("MobTypeGer");
+                    return new KillMobsTask(_logger, _sql, questId, neededMobs, mobType, mobTypeGer);
                 case "PlaceBlockTask":
                     String blockType = rs.getString("BlockType");
+                    String blockTypeGer = rs.getString("BlockTypeGer");
                     double blockLocX = rs.getDouble("BlockPositionX");
                     double blockLocY = rs.getDouble("BlockPositionY");
                     double blockLocZ = rs.getDouble("BlockPositionZ");
                     String world = rs.getString("WorldName");
                     Location blockLoc = new Location(_plugin.getServer().getWorld(world), blockLocX, blockLocY, blockLocZ);
-                    return new PlaceBlockTask(_logger, _sql, questId, blockType, blockLoc);
+                    return new PlaceBlockTask(_logger, _sql, questId, blockType, blockTypeGer, blockLoc);
                 default:
                     _logger.Error("Task mit dem Namen " + taskName + " existiert nicht");
                     return null;

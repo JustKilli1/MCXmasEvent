@@ -31,7 +31,7 @@ public class DatabaseAccessLayer {
     }
     public boolean CreateQuestsTable() {
         String sqlQuery = "CREATE TABLE IF NOT EXISTS Quests (QuestId INT NOT NULL, QuestName VARCHAR(100) NOT NULL,QuestOrder INT, TaskName VARCHAR(100)," +
-                " StartingMessage VARCHAR(100) DEFAULT 'Not Set', EndMessage VARCHAR(100) DEFAULT 'Not Set', QuestSetupFinished boolean DEFAULT false);";
+                " StartingMessage VARCHAR(200) DEFAULT 'Not Set', EndMessage VARCHAR(200) DEFAULT 'Not Set', Description VARCHAR(200) DEFAULT 'Not Set', QuestSetupFinished boolean DEFAULT false);";
         return ExecuteSQLRequest(sqlQuery);
     }
     public boolean CreateRewardsTable() {
@@ -39,11 +39,11 @@ public class DatabaseAccessLayer {
         return ExecuteSQLRequest(sqlQuery);
     }
     public boolean CreateKillMobsTaskTable() {
-        String sqlQuery = "CREATE TABLE IF NOT EXISTS KillMobsTask (TaskId INT NOT NULL, TaskName VARCHAR(100) DEFAULT 'KillMobsTask', QuestId INT NOT NULL, NeededMobs INT, MobType VARCHAR(100));";
+        String sqlQuery = "CREATE TABLE IF NOT EXISTS KillMobsTask (TaskId INT NOT NULL, TaskName VARCHAR(100) DEFAULT 'KillMobsTask', QuestId INT NOT NULL, NeededMobs INT, MobType VARCHAR(100), MobTypeGer VARCHAR(100));";
         return ExecuteSQLRequest(sqlQuery);
     }
     public boolean CreatePlaceBlockTaskTable() {
-        String sqlQuery = "CREATE TABLE IF NOT EXISTS PlaceBlockTask (TaskId INT NOT NULL, TaskName VARCHAR(100) DEFAULT 'PlaceBlockTask', QuestId INT NOT NULL, BlockType VARCHAR(100), BlockPositionX DOUBLE, BlockPositionY DOUBLE, BlockPositionZ DOUBLE, WorldName VARCHAR(100));";
+        String sqlQuery = "CREATE TABLE IF NOT EXISTS PlaceBlockTask (TaskId INT NOT NULL, TaskName VARCHAR(100) DEFAULT 'PlaceBlockTask', QuestId INT NOT NULL, BlockType VARCHAR(100), BlockTypeGer VARCHAR(100), BlockPositionX DOUBLE, BlockPositionY DOUBLE, BlockPositionZ DOUBLE, WorldName VARCHAR(100));";
         return ExecuteSQLRequest(sqlQuery);
     }
 
@@ -119,18 +119,19 @@ public class DatabaseAccessLayer {
         return ExecuteSQLRequest(sqlQuery);
     }
 
-    public boolean CreateKillMobsTask(int taskId, int questId, int neededMobs, String mobType) {
+    public boolean CreateKillMobsTask(int taskId, int questId, int neededMobs, String mobType, String mobTypeGer) {
 
         String sqlQuery = "INSERT INTO KillMobsTask " +
-                "(TaskId, QuestId, NeededMobs, MobType) " +
+                "(TaskId, QuestId, NeededMobs, MobType, MobTypeGer) " +
                 "VALUES (" + taskId + "," +
                 questId + "," +
-                neededMobs + "," +
-                "'" + mobType + "');";
+                neededMobs + ", '" +
+                mobType + "', '" +
+                mobTypeGer + "');";
         return ExecuteSQLRequest(sqlQuery);
     }
-    public boolean UpdateKillMobsTask(int questId, int neededMobs, String mobType) {
-        String sqlQuery = "UPDATE KillMobsTask SET NeededMobs=" + neededMobs + ", MobType='" + mobType + "' WHERE QuestId=" + questId;
+    public boolean UpdateKillMobsTask(int questId, int neededMobs, String mobType, String mobTypeGer) {
+        String sqlQuery = "UPDATE KillMobsTask SET NeededMobs=" + neededMobs + ", MobType='" + mobType + "', MobTypeGer='" + mobTypeGer + "' WHERE QuestId=" + questId;
         return ExecuteSQLRequest(sqlQuery);
     }
     public boolean UpdateQuestTaskName(int questId, String taskName) {
@@ -141,9 +142,10 @@ public class DatabaseAccessLayer {
         String sqlQuery = "UPDATE Quests SET QuestSetupFinished=true WHERE QuestId=" + questId;
         return ExecuteSQLRequest(sqlQuery);
     }
-    public boolean UpdatePlaceBlockTask(int questId, String blockType, Location location) {
+    public boolean UpdatePlaceBlockTask(int questId, String blockType, String blockTypeGer, Location location) {
         String sqlQuery = "UPDATE PlaceBlockTask SET " +
                 "BlockType='" + blockType + "', " +
+                "BlockTypeGet='" + blockTypeGer + "', " +
                 "BlockPositionX='" + location.getX() + "', " +
                 "BlockPositionY='" + location.getY() + "', " +
                 "BlockPositionZ='" + location.getZ() + "', " +
@@ -151,12 +153,13 @@ public class DatabaseAccessLayer {
                 "WHERE QuestId=" + questId;
         return ExecuteSQLRequest(sqlQuery);
     }
-    public boolean CreatePlaceBlockTask(int taskId, int questId, String blockType, Location location) {
+    public boolean CreatePlaceBlockTask(int taskId, int questId, String blockType, String blockTypeGer, Location location) {
 
-        String sqlQuery = "INSERT INTO PlaceBlockTask (TaskId, QuestId, BlockType, BlockPositionX, BlockPositionY, BlockPositionZ, WorldName)" +
+        String sqlQuery = "INSERT INTO PlaceBlockTask (TaskId, QuestId, BlockType, BlockTypeGer, BlockPositionX, BlockPositionY, BlockPositionZ, WorldName)" +
                 "VALUES (" + taskId + ", " +
                 questId + ", " +
                 "'" + blockType + "'," +
+                "'" + blockTypeGer + "'," +
                 "'" + location.getX() + "', " +
                 "'" + location.getY() + "', " +
                 "'" + location.getZ() + "', " +
@@ -177,7 +180,7 @@ public class DatabaseAccessLayer {
         }
         return -1;
     }
-    public ArrayList<String> GetQuestReward(int questId) {
+    public ArrayList<String> GetQuestRewardStr(int questId) {
         ArrayList<String> rewards = new ArrayList<>();
         String sqlQuery = "SELECT * FROM Rewards WHERE QuestId=" + questId;
         ResultSet rs = QuerySQLRequest(sqlQuery);
@@ -188,6 +191,10 @@ public class DatabaseAccessLayer {
             _logger.Error(ex);
             return null;
         }
+    }
+    public ResultSet GetQuestReward(int questId) {
+        String sqlQuery = "SELECT * FROM Rewards WHERE QuestId=" + questId;
+        return QuerySQLRequest(sqlQuery);
     }
     public ArrayList<String> GetQuestRewardNames(int questId) {
         ArrayList<String> rewards = new ArrayList<>();

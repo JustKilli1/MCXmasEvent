@@ -11,3 +11,5 @@ commands:
     description: DEBUG Show KillMobsTask Progress Value;
   mcxmas:
     description: MarsCraft Event Command
+  quests:
+    description: Zeigt deinen Quest fortschritt an

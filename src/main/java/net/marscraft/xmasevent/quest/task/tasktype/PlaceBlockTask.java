@@ -8,24 +8,25 @@ import org.bukkit.entity.Player;
 public class PlaceBlockTask implements ITaskType {
 
     private String _taskName = "placeblocktask";
-    private String _blockType;
+    private String _blockType, _blockTypeGer;
     private int _questId;
     private Location _blockLoc;
     private ILogmanager _logger;
     private DatabaseAccessLayer _sql;
 
-    public PlaceBlockTask(ILogmanager logger, DatabaseAccessLayer sql, int questId, String blockType, Location blockLoc) {
+    public PlaceBlockTask(ILogmanager logger, DatabaseAccessLayer sql, int questId, String blockType, String blockTypeGer, Location blockLoc) {
         _logger = logger;
         _sql = sql;
         _questId = questId;
         _blockType = blockType;
+        _blockTypeGer = blockTypeGer;
         _blockLoc = blockLoc;
     }
 
     @Override
     public boolean InitTask() {
         int newTaskId = _sql.GetLastTaskId(_taskName) + 1;
-        return _sql.CreatePlaceBlockTask(newTaskId, _questId, _blockType, _blockLoc);
+        return _sql.CreatePlaceBlockTask(newTaskId, _questId, _blockType, _blockTypeGer, _blockLoc);
     }
 
     @Override

@@ -13,14 +13,15 @@ public class KillMobsTask implements ITaskType{
     private int _questId, _taskId;
     private int _mobs = -1;
     private String _taskName = "killmobstask";
-    private String _mobType;
+    private String _mobType, _mobTypeGer;
 
-    public KillMobsTask(ILogmanager logger, DatabaseAccessLayer sql, int questId, int mobs, String mobType) {
+    public KillMobsTask(ILogmanager logger, DatabaseAccessLayer sql, int questId, int mobs, String mobType, String mobTypeGer) {
         _logger = logger;
         _sql = sql;
         _questId = questId;
         _mobs = mobs;
         _mobType = mobType;
+        _mobTypeGer = mobTypeGer;
     }
 
 
@@ -30,7 +31,7 @@ public class KillMobsTask implements ITaskType{
         if(_mobs == -1) return false;
 
         int newTaskId = _sql.GetLastTaskId(_taskName) + 1;
-        return _sql.CreateKillMobsTask(newTaskId, _questId, _mobs, _mobType);
+        return _sql.CreateKillMobsTask(newTaskId, _questId, _mobs, _mobType, _mobTypeGer);
     }
 
     @Override
