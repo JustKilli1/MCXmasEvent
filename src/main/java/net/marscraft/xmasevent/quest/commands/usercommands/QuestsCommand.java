@@ -37,37 +37,46 @@ public class QuestsCommand extends Commandmanager implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if(!(sender instanceof Player)) return false;
+        if (!(sender instanceof Player)) return false;
         Player player = (Player) sender;
         _messages = new Messagemanager(_logger, player);
-        int lastQuestId = _sql.GetLastQuestId();
-        int inventorySize = lastQuestId <= 9 ? 2 : lastQuestId + 1;
-        Inventory inv = Bukkit.createInventory(null, inventorySize*9, "§0Quest Fortschritt");
-        ResultSet rs = _sql.GetAllQuests();
+        if (args.length == 0) {
+            int lastQuestId = _sql.GetLastQuestId();
+            int inventorySize = lastQuestId <= 9 ? 2 : lastQuestId + 1;
+            Inventory inv = Bukkit.createInventory(null, inventorySize * 9, "§0Quest Fortschritt");
+            ResultSet rs = _sql.GetAllQuests();
 
-        try {
-            int itemPos = 0;
-            while(rs.next()) {
-                int activeQuestId = _sql.GetActivePlayerQuestId(player);
-                int activeQuestOrder = _sql.GetQuestOrder(activeQuestId);
-                int questId = rs.getInt("QuestId");
-                int questOrder = rs.getInt("QuestOrder");
-                boolean questSetupFinished = rs.getBoolean("QuestSetupFinished");
-                if(questSetupFinished) {
-                    if (activeQuestOrder == questOrder) {
-                        inv.setItem(itemPos, new ItemBuilder(Material.WRITABLE_BOOK).SetDisplayname("§c" + rs.getString("QuestName")).SetLore("§aAktiv").SetLocalizedName(questId + "").Build());
-                    } else if (activeQuestOrder > questOrder) {
-                        inv.setItem(itemPos, new ItemBuilder(Material.WRITABLE_BOOK).SetDisplayname("§c" + rs.getString("QuestName")).SetLore("§aAbgeschlossen").SetLocalizedName(questId + "").Build());
-                    } else if (activeQuestOrder < questOrder) {
-                        inv.setItem(itemPos, new ItemBuilder(Material.WRITABLE_BOOK).SetDisplayname("§c?").SetLore("§aSchließe den vorherigen Quest ab").SetLocalizedName("").Build());
+            try {
+                int itemPos = 0;
+                while (rs.next()) {
+                    int activeQuestId = _sql.GetActivePlayerQuestId(player);
+                    int activeQuestOrder = _sql.GetQuestOrder(activeQuestId);
+                    int questId = rs.getInt("QuestId");
+                    int questOrder = rs.getInt("QuestOrder");
+                    boolean questSetupFinished = rs.getBoolean("QuestSetupFinished");
+                    if (questSetupFinished) {
+                        if (activeQuestOrder == questOrder) {
+                            inv.setItem(itemPos, new ItemBuilder(Material.WRITABLE_BOOK).SetDisplayname("§c" + rs.getString("QuestName")).SetLore("§aAktiv").SetLocalizedName(questId + "").Build());
+                        } else if (activeQuestOrder > questOrder) {
+                            inv.setItem(itemPos, new ItemBuilder(Material.WRITABLE_BOOK).SetDisplayname("§c" + rs.getString("QuestName")).SetLore("§aAbgeschlossen").SetLocalizedName(questId + "").Build());
+                        } else if (activeQuestOrder < questOrder) {
+                            inv.setItem(itemPos, new ItemBuilder(Material.WRITABLE_BOOK).SetDisplayname("§c?").SetLore("§aSchließe den vorherigen Quest ab").SetLocalizedName("").Build());
+                        }
+                        itemPos++;
                     }
-                    itemPos++;
                 }
+                player.openInventory(inv);
+                return true;
+            } catch (Exception ex) {
+                _logger.Error(ex);
+                return false;
             }
-            player.openInventory(inv);
+        } else if(args.length == 1 && args[0].equalsIgnoreCase("rewards")){
+            ICommandType commandType = new CommandTypeQuestRewards(_logger, _sql, player);
+            commandType.ExecuteCommand(args);
             return true;
-        } catch (Exception ex) {
-            _logger.Error(ex);
+        } else {
+            _messages.SendPlayerMessage("Benutze /quests oder /quests rewards");
             return false;
         }
     }

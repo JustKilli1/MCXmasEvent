@@ -38,6 +38,10 @@ public class DatabaseAccessLayer {
         String sqlQuery = "CREATE TABLE IF NOT EXISTS Rewards (RewardId INT NOT NULL, QuestId INT NOT NULL, RewardName VARCHAR(100), Reward LONGTEXT);";
         return ExecuteSQLRequest(sqlQuery);
     }
+    public boolean CreateUnclaimedRewardsTable() {
+        String sqlQuery = "CREATE TABLE IF NOT EXISTS UnclaimedRewards (PlayerUUID VARCHAR(100) NOT NULL, PlayerName VARCHAR(100) NOT NULL, RewardIds VARCHAR(100));";
+        return ExecuteSQLRequest(sqlQuery);
+    }
     public boolean CreateKillMobsTaskTable() {
         String sqlQuery = "CREATE TABLE IF NOT EXISTS KillMobsTask (TaskId INT NOT NULL, TaskName VARCHAR(100) DEFAULT 'KillMobsTask', QuestId INT NOT NULL, NeededMobs INT, MobType VARCHAR(100), MobTypeGer VARCHAR(100));";
         return ExecuteSQLRequest(sqlQuery);
@@ -118,7 +122,42 @@ public class DatabaseAccessLayer {
                 reward + "')";
         return ExecuteSQLRequest(sqlQuery);
     }
-
+    public boolean AddUnclaimedPlayerReward(int rewardId, Player player) {
+        String rewardIds = "";
+        String sqlQuery = "SELECT * FROM UnclaimedRewards WHERE PlayerUUID='" + player.getUniqueId() + "'";
+        ResultSet rs = QuerySQLRequest(sqlQuery);
+        try {
+            if(!rs.next()) {
+                sqlQuery = "INSERT INTO UnclaimedRewards (PlayerUUID, PlayerName, RewardIds) VALUES ('" + player.getUniqueId() + "', '" + player.getName() + "', '" + rewardId + "')";
+                return ExecuteSQLRequest(sqlQuery);
+            }
+            rewardIds = rs.getString("RewardIds");
+        } catch (Exception ex) {
+            _logger.Error(ex);
+            return false;
+        }
+        rewardIds += "," + rewardId;
+        sqlQuery = "UPDATE UnclaimedRewards Set RewardIds='" + rewardIds +"'";
+        return ExecuteSQLRequest(sqlQuery);
+    }
+    public ArrayList<Integer> GetUnclaimedPlayerRewardIds(Player player) {
+        String sqlQuery = "SELECT * FROM UnclaimedRewards WHERE PlayerUUID='" + player.getUniqueId() + "'";
+        ResultSet rs = QuerySQLRequest(sqlQuery);
+        ArrayList<Integer> rewardIds = new ArrayList<>();
+        try {
+            if(!rs.next()) return null;
+            String[] rewardIdStr = rs.getString("RewardIds").split(",");
+            for(String str : rewardIdStr) { rewardIds.add(Integer.parseInt(str)); }
+            return rewardIds;
+        }catch (Exception ex) {
+            _logger.Error(ex);
+            return null;
+        }
+    }
+    public boolean DeleteUnclaimedPlayerReward(Player player) {
+        String sqlQuery = "DELETE FROM UnclaimedRewards WHERE PlayerUUID='" + player.getUniqueId() + "'";
+        return ExecuteSQLRequest(sqlQuery);
+    }
     public boolean CreateKillMobsTask(int taskId, int questId, int neededMobs, String mobType, String mobTypeGer) {
 
         String sqlQuery = "INSERT INTO KillMobsTask " +
@@ -209,17 +248,13 @@ public class DatabaseAccessLayer {
         String sqlQuery = "SELECT * FROM Rewards WHERE QuestId=" + questId;
         return QuerySQLRequest(sqlQuery);
     }
-    public ArrayList<String> GetQuestRewardNames(int questId) {
-        ArrayList<String> rewards = new ArrayList<>();
-        String sqlQuery = "SELECT * FROM Rewards WHERE QuestId=" + questId;
-        ResultSet rs = QuerySQLRequest(sqlQuery);
-        try {
-            while(rs.next()) { rewards.add(rs.getString("RewardName")); }
-            return rewards;
-        } catch (Exception ex) {
-            _logger.Error(ex);
-            return null;
-        }
+    public ResultSet GetQuestRewardByRewardId(int rewardId) {
+        String sqlQuery = "SELECT * FROM Rewards WHERE RewardId=" + rewardId;
+        return QuerySQLRequest(sqlQuery);
+    }
+    public boolean SetUnclaimedPlayerRewards(Player player, String unclaimedRewardIds) {
+        String sqlQuery = "UPDATE UnclaimedRewards Set RewardIds='" + unclaimedRewardIds + "' WHERE PlayerUUID='" + player.getUniqueId() + "'";
+        return ExecuteSQLRequest(sqlQuery);
     }
     public int GetQuestOrder(int questId) {
         String sqlQuery = "SELECT * FROM quests WHERE QuestId=" + questId;

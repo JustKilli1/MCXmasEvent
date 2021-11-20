@@ -15,14 +15,16 @@ public class RewardItems extends Rewardmanager implements IRewardType{
 
     private DatabaseAccessLayer _sql;
     private Player _player;
+    private int _rewardId;
     private ItemStack _reward;
     private ILogmanager _logger;
 
-    public RewardItems(ILogmanager logger, DatabaseAccessLayer sql, Player player, int questId, String rewardStr) {
-        super(logger, player);
+    public RewardItems(ILogmanager logger, DatabaseAccessLayer sql, Player player, int rewardId, String rewardStr) {
+        super(logger, sql, player);
         _logger = logger;
         _sql = sql;
         _player = player;
+        _rewardId = rewardId;
         ItemStackSerializer serializer = new ItemStackSerializer(logger);
         _reward = serializer.ItemStackFromBase64(rewardStr);
     }
@@ -30,7 +32,10 @@ public class RewardItems extends Rewardmanager implements IRewardType{
     @Override
     public RewardState GivePlayerReward() {
         int neededSpace = getNeededInventorySpace();
-        if(!EnoughSpaceInInventory(neededSpace, _player)) return NotEnoughSpaceInInventory;
+        if(!EnoughSpaceInInventory(neededSpace)) {
+            if(!_sql.AddUnclaimedPlayerReward(_rewardId, _player)) return CouldNotAddUnclaimedPlayerReward;
+            return NotEnoughSpaceInInventory;
+        }
         _player.getInventory().addItem(_reward);
         return GIVEN;
     }

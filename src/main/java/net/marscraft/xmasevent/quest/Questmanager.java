@@ -1,6 +1,7 @@
 package net.marscraft.xmasevent.quest;
 
 import net.marscraft.xmasevent.Main;
+import net.marscraft.xmasevent.quest.rewards.Rewardmanager;
 import net.marscraft.xmasevent.quest.rewards.rewardtype.IRewardType;
 import net.marscraft.xmasevent.quest.rewards.rewardtype.RewardItems;
 import net.marscraft.xmasevent.quest.task.Taskmanager;
@@ -35,26 +36,11 @@ public class Questmanager {
     }
 
     public boolean FinishQuest(int questId, Player player) {
-        ArrayList<String> rewardNames = _sql.GetQuestRewardNames(questId);
-        ArrayList<String> rewards = _sql.GetQuestRewardStr(questId);
-        for(int i = 0; i < rewardNames.size(); i++) {
-            IRewardType rewardType = getRewardType(rewardNames.get(i), player, questId, rewards.get(i));
-            rewardType.GivePlayerReward();
-        }
+        Rewardmanager rewardmanager = new Rewardmanager(_logger, _sql, player);
+        if(!rewardmanager.GivePlayerQuestReward(questId)) return false;
         if(!_sql.ResetProgressValues(questId))return false;
         if(!_sql.SetNextPlayerQuest(player.getUniqueId().toString(), questId))return false;
         return true;
-    }
-
-    private IRewardType getRewardType(String rewardName, Player player, int questId, String rewardString) {
-        IRewardType rewardType;
-        switch (rewardName) {
-            case "RewardItems":
-                rewardType = new RewardItems(_logger, _sql, player, questId, rewardString);
-                return rewardType;
-            default:
-                return null;
-        }
     }
 
     public Quest GetQuestByQuestId(int questId) {

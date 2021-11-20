@@ -27,13 +27,15 @@ public class InventoryClickListener implements Listener{
     @EventHandler
     public void onInvClick(InventoryClickEvent event) {
         if(event.getCurrentItem() == null) return;
-        if(!(event.getView().getTitle().equalsIgnoreCase("§0Quest Fortschritt"))) return;
+        if(!(event.getView().getTitle().equalsIgnoreCase("§0Quest Fortschritt")) || event.getView().getTitle().equalsIgnoreCase("§0Quest Belohnungen")) return;
         Player player = (Player) event.getWhoClicked();
-        event.setCancelled(true);
-        if(!(event.getCurrentItem().getItemMeta().hasLocalizedName())) return;
         Commandmanager cm = new Commandmanager(_logger);
-        int questId = cm.GetIntFromStr(event.getCurrentItem().getItemMeta().getLocalizedName());
-        QuestsBookGui gui = new QuestsBookGui(_logger, _sql, questId, player);
-    }
+        if(event.getView().getTitle().equalsIgnoreCase("§0Quest Fortschritt")) {
+            event.setCancelled(true);
+            if(!(event.getCurrentItem().getItemMeta().hasLocalizedName())) return;
+            int questId = cm.GetIntFromStr(event.getCurrentItem().getItemMeta().getLocalizedName());
+            QuestsBookGui gui = new QuestsBookGui(_logger, _sql, questId, player);
 
+        }
+    }
 }

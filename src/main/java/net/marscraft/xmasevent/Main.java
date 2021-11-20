@@ -4,10 +4,7 @@ import net.marscraft.xmasevent.quest.commands.ShowPoint;
 import net.marscraft.xmasevent.quest.commands.consolecommands.SetQuestCommand;
 import net.marscraft.xmasevent.quest.commands.mcxmas.McXmasCommand;
 import net.marscraft.xmasevent.quest.commands.usercommands.QuestsCommand;
-import net.marscraft.xmasevent.quest.listener.InventoryClickListener;
-import net.marscraft.xmasevent.quest.listener.KillMobListener;
-import net.marscraft.xmasevent.quest.listener.PlaceBlockListener;
-import net.marscraft.xmasevent.quest.listener.PlayerJoinListener;
+import net.marscraft.xmasevent.quest.listener.*;
 import net.marscraft.xmasevent.shared.configmanager.Configmanager;
 import net.marscraft.xmasevent.shared.configmanager.IConfigmanager;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
@@ -34,7 +31,7 @@ public final class Main extends JavaPlugin {
         _logger.Info("Database Connected");
 
         _logger.Info("Creating required Databases...");
-        createDatabaseTable();
+        createDatabaseTables();
         _logger.Info("All Databases created.");
         registerListener();
         registerCommands();
@@ -46,12 +43,13 @@ public final class Main extends JavaPlugin {
         _sql.disable();
     }
 
-    private boolean createDatabaseTable() {
+    private boolean createDatabaseTables() {
         _sql.CreatePlayerQuestProgressTable();
         _sql.CreateQuestsTable();
         _sql.CreateKillMobsTaskTable();
         _sql.CreatePlaceBlockTaskTable();
         _sql.CreateRewardsTable();
+        _sql.CreateUnclaimedRewardsTable();
         return true;
     }
     private boolean registerListener() {
@@ -59,6 +57,7 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(_logger, _sql), this);
         getServer().getPluginManager().registerEvents(new PlaceBlockListener(_logger, _sql, this), this);
         getServer().getPluginManager().registerEvents(new InventoryClickListener(_logger, _sql, this), this);
+        getServer().getPluginManager().registerEvents(new InventoryCloseListener(_logger, _sql, this), this);
         return true;
     }
     private boolean registerCommands() {
