@@ -122,6 +122,23 @@ public class DatabaseAccessLayer {
                 reward + "')";
         return ExecuteSQLRequest(sqlQuery);
     }
+    public ArrayList<Integer> GetRewardIds(int questId) {
+        String sqlQuery = "SELECT * FROM rewards WHERE QuestId=" + questId;
+        ResultSet rs = QuerySQLRequest(sqlQuery);
+        ArrayList<Integer> rewardIds = new ArrayList<>();
+
+        try {
+            while(rs.next()) rewardIds.add(rs.getInt("RewardId"));
+            return rewardIds;
+        } catch (Exception ex) {
+            _logger.Error(ex);
+            return null;
+        }
+    }
+    public boolean DeleteReward(int rewardId) {
+        String sqlQuery = "DELETE FROM rewards WHERE RewardId=" + rewardId;
+        return ExecuteSQLRequest(sqlQuery);
+    }
     public boolean AddUnclaimedPlayerReward(int rewardId, Player player) {
         String rewardIds = "";
         String sqlQuery = "SELECT * FROM UnclaimedRewards WHERE PlayerUUID='" + player.getUniqueId() + "'";
@@ -247,6 +264,10 @@ public class DatabaseAccessLayer {
     public ResultSet GetQuestReward(int questId) {
         String sqlQuery = "SELECT * FROM Rewards WHERE QuestId=" + questId;
         return QuerySQLRequest(sqlQuery);
+    }
+    public boolean SetReward(int rewardId, String rewardStr) {
+        String sqlQuery = "UPDATE rewards Set Reward='" + rewardStr + "' WHERE RewardId=" + rewardId;
+        return ExecuteSQLRequest(sqlQuery);
     }
     public ResultSet GetQuestRewardByRewardId(int rewardId) {
         String sqlQuery = "SELECT * FROM Rewards WHERE RewardId=" + rewardId;
