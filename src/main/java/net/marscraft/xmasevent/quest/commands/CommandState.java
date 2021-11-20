@@ -16,6 +16,7 @@ public enum CommandState {
     InvalidBlock,
     InvalidEntityType,
     InvalidEntityAmount,
+    InvalidPlayerName,
     RewardSet,
     CouldNotSetReward,
     StartingMessageSet,
@@ -26,5 +27,9 @@ public enum CommandState {
     CouldNotDeleteQuestRewards,
     CouldNotDeleteTask,
     CouldNotUpdateQuestOrder,
-    CouldNotUpdateQuestIds
+    CouldNotUpdateQuestIds,
+    NoActiveQuestFound,
+    QuestFinished,
+    CouldNotFinishQuest,
+    TaskNotFinished
 }

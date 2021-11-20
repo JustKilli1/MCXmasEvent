@@ -6,15 +6,10 @@ import net.marscraft.xmasevent.quest.gui.QuestsBookGui;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import net.marscraft.xmasevent.shared.messagemanager.IMessagemanager;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BookMeta;
-
-import java.util.ArrayList;
 
 public class InventoryClickListener implements Listener{
 
@@ -39,16 +34,6 @@ public class InventoryClickListener implements Listener{
         Commandmanager cm = new Commandmanager(_logger);
         int questId = cm.GetIntFromStr(event.getCurrentItem().getItemMeta().getLocalizedName());
         QuestsBookGui gui = new QuestsBookGui(_logger, _sql, questId, player);
-/*        player.sendMessage(questId + "");
-        ArrayList<String> pages = new ArrayList<>();
-        ItemStack iStack = new ItemStack(Material.WRITTEN_BOOK);
-        BookMeta bookMeta = (BookMeta) iStack.getItemMeta();
-        bookMeta.setAuthor("Weihnachtsmann");
-        bookMeta.setTitle("Test");
-        pages.add("Test\nTESTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\nTest");
-        bookMeta.setPages(pages);
-        iStack.setItemMeta(bookMeta);
-        player.openBook(iStack);*/
     }
 
 }

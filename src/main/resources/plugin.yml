@@ -13,3 +13,5 @@ commands:
     description: MarsCraft Event Command
   quests:
     description: Zeigt deinen Quest fortschritt an
+  setquest:
+    description: Setzt Spielerquest

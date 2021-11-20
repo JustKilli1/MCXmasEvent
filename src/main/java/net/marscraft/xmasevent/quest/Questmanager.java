@@ -43,7 +43,7 @@ public class Questmanager {
         }
         if(!_sql.ResetProgressValues(questId))return false;
         if(!_sql.SetNextPlayerQuest(player.getUniqueId().toString(), questId))return false;
-        return false;
+        return true;
     }
 
     private IRewardType getRewardType(String rewardName, Player player, int questId, String rewardString) {

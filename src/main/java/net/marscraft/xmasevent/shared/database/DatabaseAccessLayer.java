@@ -145,7 +145,7 @@ public class DatabaseAccessLayer {
     public boolean UpdatePlaceBlockTask(int questId, String blockType, String blockTypeGer, Location location) {
         String sqlQuery = "UPDATE PlaceBlockTask SET " +
                 "BlockType='" + blockType + "', " +
-                "BlockTypeGet='" + blockTypeGer + "', " +
+                "BlockTypeGer='" + blockTypeGer + "', " +
                 "BlockPositionX='" + location.getX() + "', " +
                 "BlockPositionY='" + location.getY() + "', " +
                 "BlockPositionZ='" + location.getZ() + "', " +
@@ -179,6 +179,19 @@ public class DatabaseAccessLayer {
             _logger.Error(ex);
         }
         return -1;
+    }
+    public boolean GetPlayerQuestValueBool(Player player) {
+
+        String sqlQuery = "SELECT * FROM PlayerQuestProgress WHERE PlayerUUID='" + player.getUniqueId().toString() + "'";
+        ResultSet rs = QuerySQLRequest(sqlQuery);
+
+        try {
+            if(!rs.next()) return false;
+            return rs.getBoolean("QuestValueBool");
+        } catch (Exception ex) {
+            _logger.Error(ex);
+            return false;
+        }
     }
     public ArrayList<String> GetQuestRewardStr(int questId) {
         ArrayList<String> rewards = new ArrayList<>();

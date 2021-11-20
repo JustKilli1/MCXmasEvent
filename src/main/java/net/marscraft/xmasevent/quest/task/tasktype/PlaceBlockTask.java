@@ -30,9 +30,7 @@ public class PlaceBlockTask implements ITaskType {
     }
 
     @Override
-    public boolean IsTaskFinished(Player player) {
-        return false;
-    }
+    public boolean IsTaskFinished(Player player) { return _sql.GetPlayerQuestValueBool(player); }
 
     @Override
     public String GetTaskName() {

@@ -1,6 +1,7 @@
 package net.marscraft.xmasevent;
 
 import net.marscraft.xmasevent.quest.commands.ShowPoint;
+import net.marscraft.xmasevent.quest.commands.consolecommands.SetQuestCommand;
 import net.marscraft.xmasevent.quest.commands.mcxmas.McXmasCommand;
 import net.marscraft.xmasevent.quest.commands.usercommands.QuestsCommand;
 import net.marscraft.xmasevent.quest.listener.InventoryClickListener;
@@ -64,6 +65,7 @@ public final class Main extends JavaPlugin {
         getCommand("test").setExecutor(new ShowPoint(_logger, _sql));//TODO DEBUG
         getCommand("mcxmas").setExecutor(new McXmasCommand(_logger, _sql, this));
         getCommand("quests").setExecutor(new QuestsCommand(_logger, _sql, this));
+        getCommand("setquest").setExecutor(new SetQuestCommand(_logger, _sql, this));
         return true;
     }
 

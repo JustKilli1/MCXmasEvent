@@ -28,5 +28,4 @@ public class QuestMessages {
         else
             _messagemanager.SendPlayerMessage(_endingMessage);
     }
-
 }

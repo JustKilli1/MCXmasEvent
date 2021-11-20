@@ -40,11 +40,16 @@ public class KillMobsTask implements ITaskType{
         if(_mobs == 0) return false;
 
         ResultSet rs = _sql.GetTaskByQuestId("KillMobsTask", _questId);
-        int playerProgress = _sql.GetPlayerQuestValueInt(player) + 1;
+        int playerProgress = _sql.GetPlayerQuestValueInt(player);
 
         try{
             if(!rs.next())return false; //TODO Fehlerbehandlung Task abbrechen
-            if(rs.getInt("NeededMobs") == playerProgress) return true;
+            int neededMobs = rs.getInt("NeededMobs");
+            if(neededMobs == playerProgress)return true;
+            if(neededMobs == playerProgress + 1){
+                _sql.AddPlayerMobKill(player, _sql.GetActivePlayerQuestId(player));
+                return true;
+            }
         } catch(Exception ex) {
             _logger.Error(ex);
         }
