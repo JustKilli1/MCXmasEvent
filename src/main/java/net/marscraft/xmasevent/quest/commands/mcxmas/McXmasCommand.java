@@ -13,16 +13,14 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
 import java.sql.ResultSet;
-
 import static net.marscraft.xmasevent.quest.commands.CommandState.CantFindQuestId;
 
 public class McXmasCommand extends Commandmanager implements CommandExecutor {
 
-    private ILogmanager _logger;
-    private DatabaseAccessLayer _sql;
-    private Main _plugin;
+    private final ILogmanager _logger;
+    private final DatabaseAccessLayer _sql;
+    private final Main _plugin;
     private IMessagemanager _messages;
     private ICommandType _commandType;
 
@@ -32,7 +30,10 @@ public class McXmasCommand extends Commandmanager implements CommandExecutor {
         _sql = sql;
         _plugin = plugin;
     }
-
+    /*
+     * Command: /mcxmas [args]
+     * Handles /mcxmas Command
+     */
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
 
@@ -84,6 +85,10 @@ public class McXmasCommand extends Commandmanager implements CommandExecutor {
         }
         return false;
     }
+
+    /*
+    * Checks if QuestSetup finished when finished set QuestSetupFinished true in db
+    */
     private boolean questSetupFinished(String[] args) {
 
         Commandmanager cm = new Commandmanager(_logger);
@@ -97,9 +102,12 @@ public class McXmasCommand extends Commandmanager implements CommandExecutor {
             _logger.Error(ex);
             return false;
         }
-        if(_sql.GetQuestRewardStr(questId).size() == 0) return false;
-        return true;
+        return _sql.GetQuestRewardStr(questId).size() != 0;
     }
+
+    /*
+     * Sends Player Message based on commandState
+     */
     private void commandStateActions(CommandState commandState, String[] args) {
 
         String command = "";

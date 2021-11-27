@@ -6,7 +6,7 @@ import org.bukkit.entity.EntityType;
 
 public class Commandmanager {
 
-    private ILogmanager _logger;
+    private final ILogmanager _logger;
 
     public Commandmanager (ILogmanager logger) {
         _logger = logger;
@@ -25,8 +25,7 @@ public class Commandmanager {
     public boolean IsValidBlock(String block) {
         try {
             Material material = Material.valueOf(block.toUpperCase());
-            if(!material.isBlock()) return false;
-            return true;
+            return material.isBlock();
         } catch (Exception ex) {
             return false;
         }

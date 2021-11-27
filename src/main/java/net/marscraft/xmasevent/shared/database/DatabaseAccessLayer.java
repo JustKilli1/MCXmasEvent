@@ -13,8 +13,8 @@ import java.util.ArrayList;
 
 public class DatabaseAccessLayer {
 
-    private ILogmanager _logger;
-    private MySQL _mySql;
+    private final ILogmanager _logger;
+    private final MySQL _mySql;
 
     public DatabaseAccessLayer(ILogmanager logger, IConfigmanager cm) {
         _logger = logger;
@@ -422,8 +422,7 @@ public class DatabaseAccessLayer {
         ResultSet rs = QuerySQLRequest(sqlQuery);
 
         try {
-            if(rs.next()) return true;
-            else return false;
+            return rs.next();
         } catch (Exception ex) {
             _logger.Error(ex);
             return true;
@@ -436,8 +435,7 @@ public class DatabaseAccessLayer {
         ResultSet rs = QuerySQLRequest(sqlQuery);
 
         try {
-            if(rs.next()) return true;
-            else return false;
+            return rs.next();
         } catch (Exception ex) {
             _logger.Error(ex);
         }

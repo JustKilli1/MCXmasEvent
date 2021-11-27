@@ -6,15 +6,15 @@ public interface ITaskType {
     /*
     * Initializes Task and creates new Task
     * */
-    public boolean InitTask();
+    boolean InitTask();
 
     /*
     * Check if the Task is finished
     * */
-    public boolean IsTaskFinished(Player player);
+    boolean IsTaskFinished(Player player);
 
-    public String GetTaskName();
+    String GetTaskName();
 
-    public int GetTaskId();
+    int GetTaskId();
 
 }

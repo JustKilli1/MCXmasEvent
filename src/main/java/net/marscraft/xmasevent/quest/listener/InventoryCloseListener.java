@@ -2,7 +2,6 @@ package net.marscraft.xmasevent.quest.listener;
 
 import net.marscraft.xmasevent.Main;
 import net.marscraft.xmasevent.quest.rewards.ItemStackSerializer;
-import net.marscraft.xmasevent.quest.rewards.Rewardmanager;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import net.marscraft.xmasevent.shared.messagemanager.IMessagemanager;
@@ -14,13 +13,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-
 import java.util.ArrayList;
 
 public class InventoryCloseListener implements Listener {
-    private ILogmanager _logger;
-    private DatabaseAccessLayer _sql;
-    private Main _plugin;
+    private final ILogmanager _logger;
+    private final DatabaseAccessLayer _sql;
+    private final Main _plugin;
 
     public InventoryCloseListener(ILogmanager logger, DatabaseAccessLayer sql, Main plugin) {
         _logger = logger;
@@ -30,22 +28,19 @@ public class InventoryCloseListener implements Listener {
 
     @EventHandler
     public void onInvClose(InventoryCloseEvent event) {
-        if (!(event.getView().getTitle().equalsIgnoreCase("§0Quest Belohnungen")) && !(event.getView().getTitle().contains("Quest Rewards")))
-            return;
         Player player = (Player) event.getPlayer();
         IMessagemanager messagemanager = new Messagemanager(_logger, player);
         Inventory inv = event.getInventory();
         if (event.getView().getTitle().equalsIgnoreCase("§0Quest Belohnungen")) {
+            ItemStack[] playerInventoryContents = inv.getContents();
             String unclaimedRewardIds = "";
-            for (int i = 0; i < inv.getContents().length; i++) {
-                if (inv.getContents()[i] != null) {
-                    if (inv.getContents()[i].getItemMeta().hasLocalizedName()) {
-                        if (unclaimedRewardIds.length() == 0) {
-                            unclaimedRewardIds = "" + inv.getContents()[i].getItemMeta().getLocalizedName();
-                        } else {
-                            unclaimedRewardIds += "," + inv.getContents()[i].getItemMeta().getLocalizedName();
-                        }
-                    }
+            for (int i = 0; i < playerInventoryContents.length; i++) {
+                if (playerInventoryContents[i] == null) continue;
+                if (!(playerInventoryContents[i].getItemMeta().hasLocalizedName())) continue;
+                if (unclaimedRewardIds.length() == 0) {
+                    unclaimedRewardIds = "" + playerInventoryContents[i].getItemMeta().getLocalizedName();
+                } else {
+                    unclaimedRewardIds += "," + playerInventoryContents[i].getItemMeta().getLocalizedName();
                 }
             }
             if (unclaimedRewardIds.length() == 0) {
@@ -58,7 +53,7 @@ public class InventoryCloseListener implements Listener {
                 _logger.Error("PlayerUUID: " + player.getUniqueId());
                 return;
             }
-        } else {
+        } else if (event.getView().getTitle().equalsIgnoreCase("Quest Rewards")){
             ItemStackSerializer serializer = new ItemStackSerializer(_logger);
             int questId = Integer.parseInt(event.getView().getTitle().split(" ")[0]);
             ItemStack[] invItems = inv.getContents();
@@ -66,29 +61,27 @@ public class InventoryCloseListener implements Listener {
 
             for(int i = 0; i < invItems.length; i++) {
                 ItemStack invItem = invItems[i];
-                if(invItem != null) {
-                    if(invItem.getType() != Material.AIR) {
-                        String rewardStr = serializer.ItemStackToBase64(invItem);
-                        if(invItem.getItemMeta().hasLocalizedName()) {
-                            int rewardId = Integer.parseInt(invItem.getItemMeta().getLocalizedName());
-                            if(rewardIds.contains(rewardId)) {
-                                _sql.SetReward(rewardId, rewardStr);
-                                rewardIds.remove(rewardIds.indexOf(rewardId));
-                            } else {
-                                _sql.AddNewReward("RewardItems", rewardStr, questId);
-                            }
-                        } else {
-                            _sql.AddNewReward("RewardItems", rewardStr, questId);
-                        }
+                if(invItem == null) continue;
+                if(invItem.getType() == Material.AIR) continue;
+                String rewardStr = serializer.ItemStackToBase64(invItem);
+                if(invItem.getItemMeta().hasLocalizedName()) {
+                    int rewardId = Integer.parseInt(invItem.getItemMeta().getLocalizedName());
+                    if(rewardIds.contains(rewardId)) {
+                        _sql.SetReward(rewardId, rewardStr);
+                        rewardIds.remove((Integer) rewardId);
+                    } else {
+                        _sql.AddNewReward("RewardItems", rewardStr, questId);
                     }
+                } else {
+                    _sql.AddNewReward("RewardItems", rewardStr, questId);
                 }
             }
             if(rewardIds.size() != 0) {
-                for(int rewardId : rewardIds) {
-                    _sql.DeleteReward(rewardId);
-                }
+                for(int rewardId : rewardIds) _sql.DeleteReward(rewardId);
             }
             messagemanager.SendPlayerMessage("Rewards gesetzt");
+        } else {
+            return;
         }
     }
 }

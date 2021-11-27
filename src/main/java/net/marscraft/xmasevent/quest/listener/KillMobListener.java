@@ -17,9 +17,9 @@ import org.bukkit.event.entity.EntityDeathEvent;
 
 public class KillMobListener implements Listener {
 
-    private ILogmanager _logger;
-    private DatabaseAccessLayer _sql;
-    private Main _plugin;
+    private final ILogmanager _logger;
+    private final DatabaseAccessLayer _sql;
+    private final Main _plugin;
     private IMessagemanager _messageManager;
 
     public KillMobListener(ILogmanager logger, DatabaseAccessLayer sql, Main plugin) {
@@ -31,7 +31,7 @@ public class KillMobListener implements Listener {
     @EventHandler
     public void onMobKill(EntityDeathEvent event) {
         if(event.getEntity().getKiller() instanceof Player) {
-            Player player = (Player) event.getEntity().getKiller();
+            Player player = event.getEntity().getKiller();
             _messageManager = new Messagemanager(_logger, player);
             int questId = _sql.GetActivePlayerQuestId(player);
             Questmanager questmanager = new Questmanager(_logger, _sql, _plugin);

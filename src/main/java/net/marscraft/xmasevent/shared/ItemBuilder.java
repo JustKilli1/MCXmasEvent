@@ -7,8 +7,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.Arrays;
 
 public class ItemBuilder {
-    private ItemMeta _iMeta;
-    private ItemStack _iStack;
+    private final ItemMeta _iMeta;
+    private final ItemStack _iStack;
     public ItemBuilder(Material mat){
         _iStack = new ItemStack(mat);
         _iMeta = _iStack.getItemMeta();

@@ -7,8 +7,6 @@ description: MarsCraft Christmas Event plugin
 website: marscraft.net
 
 commands:
-  test:
-    description: DEBUG Show KillMobsTask Progress Value;
   mcxmas:
     description: MarsCraft Event Command
   quests:

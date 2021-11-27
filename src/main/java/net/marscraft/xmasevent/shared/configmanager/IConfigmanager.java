@@ -4,9 +4,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 public interface IConfigmanager {
 
-    public FileConfiguration GetConfiguration();
+    FileConfiguration GetConfiguration();
 
-    public void SaveConfig();
+    void SaveConfig();
 
-    public void ReloadConfig();
+    void ReloadConfig();
 }

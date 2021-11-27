@@ -11,17 +11,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
 import java.sql.ResultSet;
 import java.util.ArrayList;
-
 import static net.marscraft.xmasevent.quest.commands.CommandState.*;
 
 public class CommandTypeEdit extends Commandmanager implements ICommandType {
 
-    private ILogmanager _logger;
-    private DatabaseAccessLayer _sql;
-    private Player _player;
+    private final ILogmanager _logger;
+    private final DatabaseAccessLayer _sql;
+    private final Player _player;
 
     public CommandTypeEdit(ILogmanager logger, DatabaseAccessLayer sql, Player player) {
         super(logger);

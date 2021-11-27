@@ -8,9 +8,9 @@ import java.sql.ResultSet;
 
 public class Messagemanager implements IMessagemanager{
 
-    private String _prefix = "§6§lMarsCraftXmasEvent §7§l> §a";
-    private Player _player;
-    private ILogmanager _logger;
+    private final String _prefix = "§6§lMarsCraftXmasEvent §7§l> §a";
+    private final Player _player;
+    private final ILogmanager _logger;
 
     public Messagemanager(ILogmanager logger, Player player) {
         _logger = logger;

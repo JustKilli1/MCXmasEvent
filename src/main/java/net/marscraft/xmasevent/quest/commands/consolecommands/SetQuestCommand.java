@@ -17,11 +17,10 @@ import org.jetbrains.annotations.NotNull;
 
 public class SetQuestCommand extends Commandmanager implements CommandExecutor {
 
-    private ILogmanager _logger;
-    private DatabaseAccessLayer _sql;
-    private Main _plugin;
+    private final ILogmanager _logger;
+    private final DatabaseAccessLayer _sql;
+    private final Main _plugin;
     private IMessagemanager _messages;
-    private ICommandType _commandType;
 
     public SetQuestCommand(ILogmanager logger, DatabaseAccessLayer sql, Main plugin) {
         super(logger);
@@ -30,7 +29,10 @@ public class SetQuestCommand extends Commandmanager implements CommandExecutor {
         _plugin = plugin;
     }
 
-
+    /*
+    * Command: /setQuest [PlayerName] [args]
+    * Handles /setQuest Command
+    */
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if(args.length < 2) return false;
@@ -48,6 +50,10 @@ public class SetQuestCommand extends Commandmanager implements CommandExecutor {
 
         return false;
     }
+
+    /*
+    * Sends Player Message based on commandState
+    */
     private void commandStateActions(CommandState commandState, String[] args) {
         switch (commandState) {
             case InvalidPlayerName:

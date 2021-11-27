@@ -15,9 +15,9 @@ import java.util.HashMap;
 
 public class Taskmanager {
 
-    private ILogmanager _logger;
-    private DatabaseAccessLayer _sql;
-    private Main _plugin;
+    private final ILogmanager _logger;
+    private final DatabaseAccessLayer _sql;
+    private final Main _plugin;
 
     public Taskmanager(ILogmanager logger, DatabaseAccessLayer sql, Main plugin) {
         _logger = logger;

@@ -6,14 +6,13 @@ import net.marscraft.xmasevent.quest.commands.ICommandType;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import net.marscraft.xmasevent.shared.messagemanager.IMessagemanager;
-
 import java.sql.ResultSet;
 
 public class CommandTypeList extends Commandmanager implements ICommandType {
 
-    private ILogmanager _logger;
-    private DatabaseAccessLayer _sql;
-    private IMessagemanager _messages;
+    private final ILogmanager _logger;
+    private final DatabaseAccessLayer _sql;
+    private final IMessagemanager _messages;
 
     public CommandTypeList(ILogmanager logger, DatabaseAccessLayer sql, IMessagemanager messages) {
         super(logger);
@@ -21,7 +20,10 @@ public class CommandTypeList extends Commandmanager implements ICommandType {
         _sql = sql;
         _messages = messages;
     }
-
+    /*
+    * Command: /mcxmas quests list
+    * Gets all quests and displays them
+    */
     @Override
     public CommandState ExecuteCommand(String[] args) {
 

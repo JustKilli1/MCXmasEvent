@@ -5,7 +5,6 @@ import net.marscraft.xmasevent.quest.commands.Commandmanager;
 import net.marscraft.xmasevent.quest.gui.QuestsBookGui;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
-import net.marscraft.xmasevent.shared.messagemanager.IMessagemanager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,10 +12,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 
 public class InventoryClickListener implements Listener{
 
-    private ILogmanager _logger;
-    private DatabaseAccessLayer _sql;
-    private Main _plugin;
-    private IMessagemanager _messageManager;
+    private final ILogmanager _logger;
+    private final DatabaseAccessLayer _sql;
+    private final Main _plugin;
 
     public InventoryClickListener(ILogmanager logger, DatabaseAccessLayer sql, Main plugin) {
         _logger = logger;

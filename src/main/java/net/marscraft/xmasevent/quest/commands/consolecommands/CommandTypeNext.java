@@ -13,10 +13,10 @@ import static net.marscraft.xmasevent.quest.commands.CommandState.*;
 
 public class CommandTypeNext extends Commandmanager implements ICommandType {
 
-    private ILogmanager _logger;
-    private DatabaseAccessLayer _sql;
-    private Player _player;
-    private Main _plugin;
+    private final ILogmanager _logger;
+    private final DatabaseAccessLayer _sql;
+    private final Player _player;
+    private final Main _plugin;
 
     public CommandTypeNext(ILogmanager logger, DatabaseAccessLayer sql, Player player, Main plugin) {
         super(logger);
@@ -25,7 +25,10 @@ public class CommandTypeNext extends Commandmanager implements ICommandType {
         _player = player;
         _plugin = plugin;
     }
-
+    /*
+    * Command: /setQuest [PlayerName] next
+    * Gets Active PlayerQuest, Finish Quest if Task is finished
+    */
     @Override
     public CommandState ExecuteCommand(String[] args) {
 

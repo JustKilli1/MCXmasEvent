@@ -6,16 +6,15 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
-
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
 public class QuestsBookGui {
 
-    private ILogmanager _logger;
-    private DatabaseAccessLayer _sql;
-    private int _questId;
-    private Player _player;
+    private final ILogmanager _logger;
+    private final DatabaseAccessLayer _sql;
+    private final int _questId;
+    private final Player _player;
 
 
     public QuestsBookGui(ILogmanager logger, DatabaseAccessLayer sql, int questId, Player player) {

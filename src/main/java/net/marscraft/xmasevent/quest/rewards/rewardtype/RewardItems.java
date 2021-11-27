@@ -13,11 +13,11 @@ import static net.marscraft.xmasevent.quest.rewards.RewardState.*;
 
 public class RewardItems extends Rewardmanager implements IRewardType{
 
-    private DatabaseAccessLayer _sql;
-    private Player _player;
-    private int _rewardId;
-    private ItemStack _reward;
-    private ILogmanager _logger;
+    private final DatabaseAccessLayer _sql;
+    private final Player _player;
+    private final int _rewardId;
+    private final ItemStack _reward;
+    private final ILogmanager _logger;
 
     public RewardItems(ILogmanager logger, DatabaseAccessLayer sql, Player player, int rewardId, String rewardStr) {
         super(logger, sql, player);

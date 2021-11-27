@@ -8,12 +8,14 @@ import java.sql.ResultSet;
 
 public class KillMobsTask implements ITaskType{
 
-    private ILogmanager _logger;
-    private DatabaseAccessLayer _sql;
-    private int _questId, _taskId;
+    private final ILogmanager _logger;
+    private final DatabaseAccessLayer _sql;
+    private final int _questId;
+    private int _taskId;
     private int _mobs = -1;
-    private String _taskName = "killmobstask";
-    private String _mobType, _mobTypeGer;
+    private final String _taskName = "killmobstask";
+    private final String _mobType;
+    private final String _mobTypeGer;
 
     public KillMobsTask(ILogmanager logger, DatabaseAccessLayer sql, int questId, int mobs, String mobType, String mobTypeGer) {
         _logger = logger;

@@ -10,8 +10,8 @@ import static net.marscraft.xmasevent.quest.commands.CommandState.*;
 
 public class CommandTypeDelete extends Commandmanager implements ICommandType {
 
-    private ILogmanager _logger;
-    private DatabaseAccessLayer _sql;
+    private final ILogmanager _logger;
+    private final DatabaseAccessLayer _sql;
 
     public CommandTypeDelete(ILogmanager logger, DatabaseAccessLayer sql) {
         super(logger);
@@ -19,6 +19,10 @@ public class CommandTypeDelete extends Commandmanager implements ICommandType {
         _sql = sql;
     }
 
+    /*
+    * Command: /mcxmas delete [QuestId]
+    * Deletes Quest,Task,Reward based on QuestId, Updates QuestOrder, Updates QuestIds
+    */
     @Override
     public CommandState ExecuteCommand(String[] args) {
         if(args.length != 2) return CommandSyntaxErrorDelete;

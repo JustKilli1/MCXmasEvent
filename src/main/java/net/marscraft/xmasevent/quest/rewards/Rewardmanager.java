@@ -15,10 +15,10 @@ import java.util.ArrayList;
 
 public class Rewardmanager {
 
-    private ILogmanager _logger;
-    private DatabaseAccessLayer _sql;
-    private Player _player;
-    private IMessagemanager _messages;
+    private final ILogmanager _logger;
+    private final DatabaseAccessLayer _sql;
+    private final Player _player;
+    private final IMessagemanager _messages;
 
     public Rewardmanager(ILogmanager logger, DatabaseAccessLayer sql, Player player) {
         _logger = logger;
@@ -73,10 +73,10 @@ public class Rewardmanager {
     private boolean rewardStateActions(RewardState rewardState) {
         switch (rewardState) {
             case GIVEN:
-                _messages.SendPlayerMessage("Du hast eine §cBelohnung §erhalten");
+                _messages.SendPlayerMessage("Du hast eine §cBelohnung §aerhalten");
                 return true;
             case NotEnoughSpaceInInventory:
-                _messages.SendPlayerMessage("Du hast zu wenig platz im Inventar um deine Belohnung zu erhalten. Mit /quests rewards kannst du deine Belohnung abholen");
+                _messages.SendPlayerMessage("Du hast zu wenig platz im Inventar. Mit §c/quests rewards §akannst du deine Belohnung abholen");
                 return true;
             case CouldNotAddUnclaimedPlayerReward:
                 _logger.Error("Could not Give Player QuestReward");

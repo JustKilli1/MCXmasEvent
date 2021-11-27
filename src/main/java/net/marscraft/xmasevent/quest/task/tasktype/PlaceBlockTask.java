@@ -7,12 +7,13 @@ import org.bukkit.entity.Player;
 
 public class PlaceBlockTask implements ITaskType {
 
-    private String _taskName = "placeblocktask";
-    private String _blockType, _blockTypeGer;
-    private int _questId;
-    private Location _blockLoc;
-    private ILogmanager _logger;
-    private DatabaseAccessLayer _sql;
+    private final String _taskName = "placeblocktask";
+    private final String _blockType;
+    private final String _blockTypeGer;
+    private final int _questId;
+    private final Location _blockLoc;
+    private final ILogmanager _logger;
+    private final DatabaseAccessLayer _sql;
 
     public PlaceBlockTask(ILogmanager logger, DatabaseAccessLayer sql, int questId, String blockType, String blockTypeGer, Location blockLoc) {
         _logger = logger;

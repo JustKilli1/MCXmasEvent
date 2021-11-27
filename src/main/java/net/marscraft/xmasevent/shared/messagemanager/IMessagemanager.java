@@ -6,12 +6,12 @@ import java.sql.ResultSet;
 
 public interface IMessagemanager {
 
-    public void SendPlayerMessage(String msg);
+    void SendPlayerMessage(String msg);
 
-    public void SendSyntaxErrorMessage(String syntax);
+    void SendSyntaxErrorMessage(String syntax);
 
-    public void SendErrorMessage(String error);
+    void SendErrorMessage(String error);
 
-    public void SendQuestList(ResultSet values);
+    void SendQuestList(ResultSet values);
 
 }

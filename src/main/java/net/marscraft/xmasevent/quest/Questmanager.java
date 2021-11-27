@@ -2,23 +2,19 @@ package net.marscraft.xmasevent.quest;
 
 import net.marscraft.xmasevent.Main;
 import net.marscraft.xmasevent.quest.rewards.Rewardmanager;
-import net.marscraft.xmasevent.quest.rewards.rewardtype.IRewardType;
-import net.marscraft.xmasevent.quest.rewards.rewardtype.RewardItems;
 import net.marscraft.xmasevent.quest.task.Taskmanager;
 import net.marscraft.xmasevent.quest.task.tasktype.ITaskType;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.entity.Player;
-
 import java.sql.ResultSet;
-import java.util.ArrayList;
 
 public class Questmanager {
 
-    private  ILogmanager _logger;
-    private DatabaseAccessLayer _sql;
-    private Main _plugin;
-    private Taskmanager _taskmanager;
+    private final ILogmanager _logger;
+    private final DatabaseAccessLayer _sql;
+    private final Main _plugin;
+    private final Taskmanager _taskmanager;
 
     public Questmanager(ILogmanager logger, DatabaseAccessLayer sql, Main plugin) {
         _logger = logger;
@@ -39,8 +35,7 @@ public class Questmanager {
         Rewardmanager rewardmanager = new Rewardmanager(_logger, _sql, player);
         if(!rewardmanager.GivePlayerQuestReward(questId)) return false;
         if(!_sql.ResetProgressValues(questId))return false;
-        if(!_sql.SetNextPlayerQuest(player.getUniqueId().toString(), questId))return false;
-        return true;
+        return _sql.SetNextPlayerQuest(player.getUniqueId().toString(), questId);
     }
 
     public Quest GetQuestByQuestId(int questId) {

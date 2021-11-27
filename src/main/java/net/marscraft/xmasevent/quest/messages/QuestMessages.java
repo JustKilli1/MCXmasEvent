@@ -7,11 +7,12 @@ import org.bukkit.entity.Player;
 
 public class QuestMessages {
 
-    private IMessagemanager _messagemanager;
-    private String _startingMessage, _endingMessage;
-    private boolean _questFinished;
-    private Player _player;
-    private ILogmanager _logger;
+    private final IMessagemanager _messagemanager;
+    private final String _startingMessage;
+    private final String _endingMessage;
+    private final boolean _questFinished;
+    private final Player _player;
+    private final ILogmanager _logger;
 
     public QuestMessages(ILogmanager logger, String startingMessage, String endingMessage, boolean questFinished, Player player) {
         _logger = logger;
