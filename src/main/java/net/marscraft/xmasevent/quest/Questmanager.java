@@ -11,10 +11,10 @@ import java.sql.ResultSet;
 
 public class Questmanager {
 
-    private final ILogmanager _logger;
-    private final DatabaseAccessLayer _sql;
-    private final Main _plugin;
-    private final Taskmanager _taskmanager;
+    private ILogmanager _logger;
+    private DatabaseAccessLayer _sql;
+    private Main _plugin;
+    private Taskmanager _taskmanager;
 
     public Questmanager(ILogmanager logger, DatabaseAccessLayer sql, Main plugin) {
         _logger = logger;
@@ -27,13 +27,14 @@ public class Questmanager {
         Quest quest = new Quest(_logger, _sql, _sql.GetLastQuestId() + 1, questName);
 
         if(_sql.QuestExists(questName)) return false;
-
         return _sql.AddNewQuestToDatabase(quest, taskName);
     }
 
     public boolean FinishQuest(int questId, Player player) {
         Rewardmanager rewardmanager = new Rewardmanager(_logger, _sql, player);
-        if(!rewardmanager.GivePlayerQuestReward(questId)) return false;
+        return rewardmanager.GivePlayerQuestReward(questId);
+    }
+    public boolean StartNextQuest(int questId, Player player) {
         if(!_sql.ResetProgressValues(questId))return false;
         return _sql.SetNextPlayerQuest(player.getUniqueId().toString(), questId);
     }

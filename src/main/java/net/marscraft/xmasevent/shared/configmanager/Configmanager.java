@@ -10,12 +10,12 @@ import java.io.File;
 import java.io.IOException;
 
 public class Configmanager implements IConfigmanager{
-    private final JavaPlugin _plugin;
-    private final String _configName;
-    private final ILogmanager _logManager;
+    private JavaPlugin _plugin;
+    private String _configName;
+    private ILogmanager _logManager;
 
     private FileConfiguration _fileConfiguration = null;
-    private final File _file;
+    private File _file;
 
     public Configmanager(Main plugin, ILogmanager logManager, String configName){
         _plugin = plugin;

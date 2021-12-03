@@ -10,9 +10,9 @@ import java.sql.ResultSet;
 
 public class CommandTypeList extends Commandmanager implements ICommandType {
 
-    private final ILogmanager _logger;
-    private final DatabaseAccessLayer _sql;
-    private final IMessagemanager _messages;
+    private ILogmanager _logger;
+    private DatabaseAccessLayer _sql;
+    private IMessagemanager _messages;
 
     public CommandTypeList(ILogmanager logger, DatabaseAccessLayer sql, IMessagemanager messages) {
         super(logger);

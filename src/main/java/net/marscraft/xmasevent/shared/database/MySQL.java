@@ -9,14 +9,14 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class MySQL {
-    private final ILogmanager _logger;
-    private final IConfigmanager cm;
-    private final FileConfiguration config;
+    private ILogmanager _logger;
+    private IConfigmanager cm;
+    private FileConfiguration config;
     private String host = "";
     private String port = "";
     private String database = "";
     private String username = "";
-    private final String password = "";
+    private String password = "";
     private Connection con;
 
     public MySQL(ILogmanager logger, IConfigmanager configManager) {

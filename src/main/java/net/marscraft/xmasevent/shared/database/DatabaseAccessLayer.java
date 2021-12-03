@@ -13,8 +13,8 @@ import java.util.ArrayList;
 
 public class DatabaseAccessLayer {
 
-    private final ILogmanager _logger;
-    private final MySQL _mySql;
+    private ILogmanager _logger;
+    private MySQL _mySql;
 
     public DatabaseAccessLayer(ILogmanager logger, IConfigmanager cm) {
         _logger = logger;
@@ -47,9 +47,15 @@ public class DatabaseAccessLayer {
         return ExecuteSQLRequest(sqlQuery);
     }
     public boolean CreatePlaceBlockTaskTable() {
-        String sqlQuery = "CREATE TABLE IF NOT EXISTS PlaceBlockTask (TaskId INT NOT NULL, TaskName VARCHAR(100) DEFAULT 'PlaceBlockTask', QuestId INT NOT NULL, BlockType VARCHAR(100), BlockTypeGer VARCHAR(100), BlockPositionX DOUBLE, BlockPositionY DOUBLE, BlockPositionZ DOUBLE, WorldName VARCHAR(100));";
+        String sqlQuery = "CREATE TABLE IF NOT EXISTS PlaceBlockTask (TaskId INT NOT NULL, TaskName VARCHAR(100) DEFAULT 'PlaceBlockTask', QuestId INT NOT NULL, BlockType VARCHAR(100), BlockTypeGer VARCHAR(100), BlockPositionX INT, BlockPositionY INT, BlockPositionZ INT, WorldName VARCHAR(100));";
         return ExecuteSQLRequest(sqlQuery);
     }
+    public boolean CreatePlaceBlocksTaskTable() {
+        String sqlQuery = "CREATE TABLE IF NOT EXISTS PlaceBlocksTask (TaskId INT NOT NULL, TaskName VARCHAR(100) DEFAULT 'PlaceBlocksTask', QuestId INT NOT NULL, BlockType VARCHAR(100), BlockTypeGer VARCHAR(100), BlockAmount INT);";
+        return ExecuteSQLRequest(sqlQuery);
+    }
+
+
 
     public int GetLastTaskId(String table) {
         String sqlQuery = "SELECT * FROM KillMobsTask ORDER BY TaskId DESC LIMIT 1;";
@@ -202,24 +208,40 @@ public class DatabaseAccessLayer {
         String sqlQuery = "UPDATE PlaceBlockTask SET " +
                 "BlockType='" + blockType + "', " +
                 "BlockTypeGer='" + blockTypeGer + "', " +
-                "BlockPositionX='" + location.getX() + "', " +
-                "BlockPositionY='" + location.getY() + "', " +
-                "BlockPositionZ='" + location.getZ() + "', " +
+                "BlockPositionX='" + location.getBlockX() + "', " +
+                "BlockPositionY='" + location.getBlockY() + "', " +
+                "BlockPositionZ='" + location.getBlockZ() + "', " +
                 "WorldName='" + location.getWorld().getName() + "' " +
                 "WHERE QuestId=" + questId;
         return ExecuteSQLRequest(sqlQuery);
     }
     public boolean CreatePlaceBlockTask(int taskId, int questId, String blockType, String blockTypeGer, Location location) {
-
         String sqlQuery = "INSERT INTO PlaceBlockTask (TaskId, QuestId, BlockType, BlockTypeGer, BlockPositionX, BlockPositionY, BlockPositionZ, WorldName)" +
                 "VALUES (" + taskId + ", " +
                 questId + ", " +
                 "'" + blockType + "'," +
                 "'" + blockTypeGer + "'," +
-                "'" + location.getX() + "', " +
-                "'" + location.getY() + "', " +
-                "'" + location.getZ() + "', " +
+                "'" + location.getBlockX() + "', " +
+                "'" + location.getBlockY() + "', " +
+                "'" + location.getBlockZ() + "', " +
                 "'" + location.getWorld().getName() + "')";
+        return ExecuteSQLRequest(sqlQuery);
+    }
+
+    public boolean CreatePlaceBlocksTask(int questId, int blockAmount, String blockType, String blockTypeGer) {
+        int taskId = GetLastTaskId("PlaceBlocksTask");
+        String sqlQuery = "INSERT INTO PlaceBlocksTask " +
+                "(TaskId, QuestId, BlockType, BlockTypeGer, BlockAmount) " +
+                "VALUES (" + taskId + ", " + questId + ", '" + blockType + "', '" + blockTypeGer + "', " + blockAmount + ")";
+        return ExecuteSQLRequest(sqlQuery);
+    }
+    public boolean UpdatePlaceBlocksTask(int questId, int blockAmount, String blockType, String blockTypeGer) {
+        String sqlQuery = "UPDATE PlaceBLocksTask SET " +
+                "QuestId=" + questId + ", " +
+                "BlockType='" + blockType + "', " +
+                "BlockTypeGer='" + blockTypeGer + "', " +
+                "BlockAmount=" + blockAmount + " " +
+                "WHERE QuestId=" + questId;
         return ExecuteSQLRequest(sqlQuery);
     }
     public int GetPlayerQuestValueInt(Player player) {
@@ -259,6 +281,18 @@ public class DatabaseAccessLayer {
         } catch (Exception ex) {
             _logger.Error(ex);
             return null;
+        }
+    }
+    public int GetPlaceBlocksTaskBlockAmount(int questId) {
+        String sqlQuery = "SELECT * FROM PlaceBlocksTask WHERE QuestId=" + questId;
+        ResultSet rs = QuerySQLRequest(sqlQuery);
+
+        try {
+            if(!rs.next()) return 0;
+            return rs.getInt("BlockAmount");
+        } catch (Exception ex) {
+            _logger.Error(ex);
+            return 0;
         }
     }
     public ResultSet GetQuestReward(int questId) {
@@ -376,6 +410,22 @@ public class DatabaseAccessLayer {
     public ResultSet GetTaskByQuestId(String tableName, int questId) {
         String sqlQuery = "SELECT * FROM " + tableName + " WHERE QuestId=" + questId;
         return QuerySQLRequest(sqlQuery);
+    }
+    public boolean PlayerQuestFinished(Player player) {
+        String sqlQuery = "SELECT * FROM playerquestprogress WHERE PlayerUUID='" + player .getUniqueId().toString() + "'";
+        ResultSet rs = QuerySQLRequest(sqlQuery);
+
+        try {
+            if(!rs.next()) return false;
+            return rs.getBoolean("QuestFinished");
+        } catch (Exception ex) {
+            _logger.Error(ex);
+            return false;
+        }
+    }
+    public boolean SetPlayerQuestFinished(Player player, boolean questFinished) {
+        String sqlQuery = "UPDATE PlayerQuestProgress SET QuestFinished=" + questFinished + " WHERE PlayerUUID='" + player.getUniqueId().toString() + "'";
+        return ExecuteSQLRequest(sqlQuery);
     }
     public int GetActivePlayerQuestId(Player player) {
         String sqlQuery = "SELECT * FROM PlayerQuestProgress WHERE PlayerUUID='" + player.getUniqueId().toString() + "'";

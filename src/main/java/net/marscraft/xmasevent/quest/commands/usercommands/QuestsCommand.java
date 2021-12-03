@@ -3,7 +3,8 @@ package net.marscraft.xmasevent.quest.commands.usercommands;
 import net.marscraft.xmasevent.Main;
 import net.marscraft.xmasevent.quest.commands.Commandmanager;
 import net.marscraft.xmasevent.quest.commands.ICommandType;
-import net.marscraft.xmasevent.shared.Inventorys.InventoryHandler;
+import net.marscraft.xmasevent.shared.Inventorys.IInventoryType;
+import net.marscraft.xmasevent.shared.Inventorys.InvPlayerQuests;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import net.marscraft.xmasevent.shared.messagemanager.IMessagemanager;
@@ -18,9 +19,9 @@ import org.jetbrains.annotations.NotNull;
 public class QuestsCommand extends Commandmanager implements CommandExecutor {
 
 
-    private final ILogmanager _logger;
-    private final DatabaseAccessLayer _sql;
-    private final Main _plugin;
+    private ILogmanager _logger;
+    private DatabaseAccessLayer _sql;
+    private Main _plugin;
     private IMessagemanager _messages;
 
     public QuestsCommand(ILogmanager logger, DatabaseAccessLayer sql, Main plugin) {
@@ -39,11 +40,10 @@ public class QuestsCommand extends Commandmanager implements CommandExecutor {
 
         Player player = (Player) sender;
         _messages = new Messagemanager(_logger, player);
-        InventoryHandler inventoryHandler = new InventoryHandler(_logger, _sql, player);
+        IInventoryType inventoryType = new InvPlayerQuests(_logger, _sql);
 
         if (args.length == 0) {
-            Inventory questsInv = inventoryHandler.CreatePlayerQuestsInventory();
-            player.openInventory(questsInv);
+            inventoryType.OpenInventory(player);
         } else if(args.length == 1 && args[0].equalsIgnoreCase("rewards")){
             ICommandType commandType = new CommandTypeQuestRewards(_logger, _sql, player);
             commandType.ExecuteCommand(args);

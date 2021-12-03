@@ -6,8 +6,8 @@ import java.util.logging.Logger;
 
 public class Logmanager implements ILogmanager{
 
-    private final Main _plugin;
-    private final Logger _logger;
+    private Main _plugin;
+    private Logger _logger;
 
     public Logmanager(Main plugin) {
         _plugin = plugin;

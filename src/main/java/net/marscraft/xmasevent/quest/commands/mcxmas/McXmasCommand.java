@@ -14,13 +14,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import java.sql.ResultSet;
-import static net.marscraft.xmasevent.quest.commands.CommandState.CantFindQuestId;
+import static net.marscraft.xmasevent.quest.commands.CommandState.*;
 
 public class McXmasCommand extends Commandmanager implements CommandExecutor {
 
-    private final ILogmanager _logger;
-    private final DatabaseAccessLayer _sql;
-    private final Main _plugin;
+    private ILogmanager _logger;
+    private DatabaseAccessLayer _sql;
+    private Main _plugin;
     private IMessagemanager _messages;
     private ICommandType _commandType;
 
@@ -61,6 +61,10 @@ public class McXmasCommand extends Commandmanager implements CommandExecutor {
             commandStateActions(_commandType.ExecuteCommand(args), args);
             return true;
         } else if(args[0].equalsIgnoreCase("quests")) {
+            if(args.length != 2) {
+                commandStateActions(CommandSyntaxErrorQuests, args);
+                return false;
+            }
             if(args[1].equalsIgnoreCase("list")) {
                 _commandType = new CommandTypeList(_logger, _sql, _messages);
                 _commandType.ExecuteCommand(args);
@@ -68,19 +72,18 @@ public class McXmasCommand extends Commandmanager implements CommandExecutor {
             }
         } else if(args[0].equalsIgnoreCase("edit")) {
             if(args.length < 3){
-                commandStateActions(CommandState.CommandSyntaxErrorEdit, args);
+                commandStateActions(CommandSyntaxErrorEdit, args);
                 return false;
             }
-            _commandType = new CommandTypeEdit(_logger, _sql, player);
-            CommandState cState = _commandType.ExecuteCommand(args);
-            commandStateActions(cState, args);
+            _commandType = new CommandTypeEdit(_logger, _sql, _plugin, player);
+            commandStateActions(_commandType.ExecuteCommand(args), args);
             if(questSetupFinished(args)) _sql.QuestSetupFinished(questId);
             return true;
         } else if(args[0].equalsIgnoreCase("delete")){
             _commandType = new CommandTypeDelete(_logger, _sql);
             commandStateActions(_commandType.ExecuteCommand(args), args);
         } else {
-            commandStateActions(CommandState.CommandSyntaxError, args);
+            commandStateActions(CommandSyntaxError, args);
             return false;
         }
         return false;

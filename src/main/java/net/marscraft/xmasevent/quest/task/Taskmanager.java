@@ -4,6 +4,7 @@ import net.marscraft.xmasevent.Main;
 import net.marscraft.xmasevent.quest.task.tasktype.ITaskType;
 import net.marscraft.xmasevent.quest.task.tasktype.KillMobsTask;
 import net.marscraft.xmasevent.quest.task.tasktype.PlaceBlockTask;
+import net.marscraft.xmasevent.quest.task.tasktype.PlaceBlocksTask;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.Location;
@@ -15,9 +16,9 @@ import java.util.HashMap;
 
 public class Taskmanager {
 
-    private final ILogmanager _logger;
-    private final DatabaseAccessLayer _sql;
-    private final Main _plugin;
+    private ILogmanager _logger;
+    private DatabaseAccessLayer _sql;
+    private Main _plugin;
 
     public Taskmanager(ILogmanager logger, DatabaseAccessLayer sql, Main plugin) {
         _logger = logger;
@@ -29,21 +30,13 @@ public class Taskmanager {
         ResultSet rs = _sql.GetTaskByQuestId(taskName, questId);
         try {
             if(!rs.next())return null;
-            switch (taskName) {
-                case "KillMobsTask":
-                    int neededMobs = rs.getInt("NeededMobs");
-                    String mobType = rs.getString("MobType");
-                    String mobTypeGer = rs.getString("MobTypeGer");
-                    return new KillMobsTask(_logger, _sql, questId, neededMobs, mobType, mobTypeGer);
-                case "PlaceBlockTask":
-                    String blockType = rs.getString("BlockType");
-                    String blockTypeGer = rs.getString("BlockTypeGer");
-                    double blockLocX = rs.getDouble("BlockPositionX");
-                    double blockLocY = rs.getDouble("BlockPositionY");
-                    double blockLocZ = rs.getDouble("BlockPositionZ");
-                    String world = rs.getString("WorldName");
-                    Location blockLoc = new Location(_plugin.getServer().getWorld(world), blockLocX, blockLocY, blockLocZ);
-                    return new PlaceBlockTask(_logger, _sql, questId, blockType, blockTypeGer, blockLoc);
+            switch (taskName.toLowerCase()) {
+                case "killmobstask":
+                    return new KillMobsTask(_logger, _sql, _plugin, questId);
+                case "placeblocktask":
+                    return new PlaceBlockTask(_logger, _sql, _plugin, questId);
+                case "placeblockstask":
+                    return new PlaceBlocksTask(_logger, _sql, _plugin, questId);
                 default:
                     _logger.Error("Task mit dem Namen " + taskName + " existiert nicht");
                     return null;
@@ -74,6 +67,18 @@ public class Taskmanager {
             Location location = new Location(_plugin.getServer().getWorld(world), rs.getDouble("BlockPositionX"), rs.getDouble("BlockPositionY"), rs.getDouble("BlockPositionZ"));
             blockInfo.put(material, location);
             return blockInfo;
+        } catch (Exception ex) {
+            _logger.Error(ex);
+            return null;
+        }
+    }
+
+    public Material GetPlaceBlocksBlockType(int questId) {
+        ResultSet rs = _sql.GetTaskByQuestId("PlaceBlocksTask", questId);
+        try {
+            if(!rs.next()) return null;
+            String blockTypeStr = rs.getString("BlockType");
+            return Material.getMaterial(blockTypeStr.toUpperCase());
         } catch (Exception ex) {
             _logger.Error(ex);
             return null;

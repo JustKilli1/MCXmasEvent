@@ -9,8 +9,8 @@ public class Quest {
     private ITaskType _taskType;
     private int _questId;
     private String _questName;
-    private final ILogmanager _logger;
-    private final DatabaseAccessLayer _sql;
+    private ILogmanager _logger;
+    private DatabaseAccessLayer _sql;
     public Quest(ILogmanager logger, DatabaseAccessLayer sql, int questId, String questName){
         _logger = logger;
         _sql = sql;

@@ -11,11 +11,11 @@ import net.marscraft.xmasevent.shared.messagemanager.IMessagemanager;
 
 public class CommandTypeCreate extends Commandmanager implements ICommandType {
 
-    private final ILogmanager _logger;
-    private final DatabaseAccessLayer _sql;
-    private final Main _plugin;
-    private final IMessagemanager _messages;
-    private final Questmanager _questmanager;
+    private ILogmanager _logger;
+    private DatabaseAccessLayer _sql;
+    private Main _plugin;
+    private IMessagemanager _messages;
+    private Questmanager _questmanager;
 
     public CommandTypeCreate(ILogmanager logger, DatabaseAccessLayer sql, Main plugin, IMessagemanager messages) {
         super(logger);

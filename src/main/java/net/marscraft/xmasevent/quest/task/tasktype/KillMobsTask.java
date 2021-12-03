@@ -1,39 +1,91 @@
 package net.marscraft.xmasevent.quest.task.tasktype;
 
+import net.marscraft.xmasevent.Main;
+import net.marscraft.xmasevent.quest.Questmanager;
+import net.marscraft.xmasevent.quest.listener.EventStorage;
+import net.marscraft.xmasevent.quest.task.Taskmanager;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDeathEvent;
 
 import java.sql.ResultSet;
 
+import static net.marscraft.xmasevent.quest.commands.CommandState.InvalidEntityAmount;
+import static net.marscraft.xmasevent.quest.commands.CommandState.InvalidEntityType;
+
 public class KillMobsTask implements ITaskType{
 
-    private final ILogmanager _logger;
-    private final DatabaseAccessLayer _sql;
-    private final int _questId;
-    private int _taskId;
-    private int _mobs = -1;
-    private final String _taskName = "killmobstask";
-    private final String _mobType;
-    private final String _mobTypeGer;
+    private ILogmanager _logger;
+    private DatabaseAccessLayer _sql;
+    private Main _plugin;
+    private int _questId, _taskId, _mobs;
+    private String _taskName = "killmobstask";
+    private String _mobType, _mobTypeGer;
 
-    public KillMobsTask(ILogmanager logger, DatabaseAccessLayer sql, int questId, int mobs, String mobType, String mobTypeGer) {
+    public KillMobsTask(ILogmanager logger, DatabaseAccessLayer sql, int questId, int taskId, int mobs, String mobType, String mobTypeGer) {
         _logger = logger;
         _sql = sql;
         _questId = questId;
+        _taskId = taskId;
         _mobs = mobs;
         _mobType = mobType;
         _mobTypeGer = mobTypeGer;
     }
 
+    public KillMobsTask(ILogmanager logger, DatabaseAccessLayer sql, Main plugin, int questId) {
+        _logger = logger;
+        _sql = sql;
+        _plugin = plugin;
+        _questId = questId;
+        LoadTask();
+    }
 
     @Override
-    public boolean InitTask() {
+    public boolean CreateTask() {
+        boolean taskExists = _sql.TaskExists(_questId, _taskName);
+        if(taskExists)
+            _sql.UpdateKillMobsTask(_questId, _mobs, _mobType, _mobTypeGer);
+        else
+            _sql.CreateKillMobsTask(_taskId, _questId, _mobs, _mobType, _mobTypeGer);
+        _sql.UpdateQuestTaskName(_questId, _taskName);
+        return true;
+    }
 
-        if(_mobs == -1) return false;
+    @Override
+    public boolean LoadTask() {
+        ResultSet rs = _sql.GetTaskByQuestId(_taskName, _questId);
+        try {
+            if(!rs.next()) return false;
+            _mobs = rs.getInt("NeededMobs");
+            _mobType = rs.getString("MobType");
+            _mobTypeGer = rs.getString("MobTypeGer");
+            return true;
+        } catch (Exception ex) {
+            _logger.Error(ex);
+            return false;
+        }
+    }
 
-        int newTaskId = _sql.GetLastTaskId(_taskName) + 1;
-        return _sql.CreateKillMobsTask(newTaskId, _questId, _mobs, _mobType, _mobTypeGer);
+    @Override
+    public boolean ExecuteTask(EventStorage eventStorage, Player player) {
+        EntityDeathEvent event = eventStorage.GetEntityDeathEvent();
+        Taskmanager taskmanager = new Taskmanager(_logger, _sql, _plugin);
+        int questId = _sql.GetActivePlayerQuestId(player);
+        EntityType eType = taskmanager.GetKillMobsTaskMobType(questId);
+
+        if(eType == null){
+            _logger.Error("EntityType des Task KillMobs konnte nicht geladen werden. Bitte Datenbank überprüfen");
+            _logger.Error("QuestId: " + questId);
+            return false;
+        }
+        if(event.getEntityType() == eType){
+            if(!IsTaskFinished(player))
+                _sql.AddPlayerMobKill(player, questId);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -41,7 +93,7 @@ public class KillMobsTask implements ITaskType{
 
         if(_mobs == 0) return false;
 
-        ResultSet rs = _sql.GetTaskByQuestId("KillMobsTask", _questId);
+        ResultSet rs = _sql.GetTaskByQuestId(_taskName, _questId);
         int playerProgress = _sql.GetPlayerQuestValueInt(player);
 
         try{
@@ -55,7 +107,6 @@ public class KillMobsTask implements ITaskType{
         } catch(Exception ex) {
             _logger.Error(ex);
         }
-
         return false;
     }
 

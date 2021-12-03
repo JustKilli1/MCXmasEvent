@@ -6,7 +6,7 @@ import org.bukkit.entity.EntityType;
 
 public class Commandmanager {
 
-    private final ILogmanager _logger;
+    private ILogmanager _logger;
 
     public Commandmanager (ILogmanager logger) {
         _logger = logger;
@@ -17,6 +17,8 @@ public class Commandmanager {
             case "killmobstask":
                 return true;
             case "placeblocktask":
+                return true;
+            case "placeblockstask":
                 return true;
             default:
                 return false;

@@ -15,10 +15,10 @@ import java.util.ArrayList;
 
 public class Rewardmanager {
 
-    private final ILogmanager _logger;
-    private final DatabaseAccessLayer _sql;
-    private final Player _player;
-    private final IMessagemanager _messages;
+    private ILogmanager _logger;
+    private DatabaseAccessLayer _sql;
+    private Player _player;
+    private IMessagemanager _messages;
 
     public Rewardmanager(ILogmanager logger, DatabaseAccessLayer sql, Player player) {
         _logger = logger;

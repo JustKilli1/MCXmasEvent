@@ -17,9 +17,9 @@ import org.jetbrains.annotations.NotNull;
 
 public class SetQuestCommand extends Commandmanager implements CommandExecutor {
 
-    private final ILogmanager _logger;
-    private final DatabaseAccessLayer _sql;
-    private final Main _plugin;
+    private ILogmanager _logger;
+    private DatabaseAccessLayer _sql;
+    private Main _plugin;
     private IMessagemanager _messages;
 
     public SetQuestCommand(ILogmanager logger, DatabaseAccessLayer sql, Main plugin) {

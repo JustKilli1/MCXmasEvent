@@ -10,8 +10,8 @@ import java.util.EventListener;
 
 public class PlayerJoinListener implements Listener {
 
-    private final DatabaseAccessLayer _sql;
-    private final ILogmanager _logger;
+    private DatabaseAccessLayer _sql;
+    private ILogmanager _logger;
 
     public PlayerJoinListener(ILogmanager logger, DatabaseAccessLayer sql) {
         _sql = sql;

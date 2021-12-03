@@ -10,8 +10,8 @@ import static net.marscraft.xmasevent.quest.commands.CommandState.*;
 
 public class CommandTypeDelete extends Commandmanager implements ICommandType {
 
-    private final ILogmanager _logger;
-    private final DatabaseAccessLayer _sql;
+    private ILogmanager _logger;
+    private DatabaseAccessLayer _sql;
 
     public CommandTypeDelete(ILogmanager logger, DatabaseAccessLayer sql) {
         super(logger);

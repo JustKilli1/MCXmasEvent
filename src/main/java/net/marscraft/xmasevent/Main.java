@@ -9,6 +9,7 @@ import net.marscraft.xmasevent.shared.configmanager.IConfigmanager;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import net.marscraft.xmasevent.shared.logmanager.Logmanager;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
@@ -49,14 +50,16 @@ public final class Main extends JavaPlugin {
         _sql.CreatePlaceBlockTaskTable();
         _sql.CreateRewardsTable();
         _sql.CreateUnclaimedRewardsTable();
+        _sql.CreatePlaceBlocksTaskTable();
         return true;
     }
     private boolean registerListener() {
-        getServer().getPluginManager().registerEvents(new KillMobListener(_logger, _sql, this), this);
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(_logger, _sql), this);
-        getServer().getPluginManager().registerEvents(new PlaceBlockListener(_logger, _sql, this), this);
-        getServer().getPluginManager().registerEvents(new InventoryClickListener(_logger, _sql, this), this);
-        getServer().getPluginManager().registerEvents(new InventoryCloseListener(_logger, _sql, this), this);
+        PluginManager pm = getServer().getPluginManager();
+        pm.registerEvents(new KillMobListener(_logger, _sql, this), this);
+        pm.registerEvents(new PlayerJoinListener(_logger, _sql), this);
+        pm.registerEvents(new PlaceBlockListener(_logger, _sql, this), this);
+        pm.registerEvents(new InventoryClickListener(_logger, _sql, this), this);
+        pm.registerEvents(new InventoryCloseListener(_logger, _sql, this), this);
         return true;
     }
     private boolean registerCommands() {

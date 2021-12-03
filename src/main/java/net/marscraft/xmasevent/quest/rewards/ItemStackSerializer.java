@@ -10,7 +10,7 @@ import java.io.ByteArrayOutputStream;
 
 public class ItemStackSerializer {
 
-    private final ILogmanager _logger;
+    private ILogmanager _logger;
 
     public ItemStackSerializer(ILogmanager logger) {
         _logger = logger;

@@ -11,24 +11,21 @@ import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.entity.Player;
 import static net.marscraft.xmasevent.quest.commands.CommandState.*;
 
-public class CommandTypeNext extends Commandmanager implements ICommandType {
+public class CommandTypeProgress extends Commandmanager implements ICommandType {
 
     private ILogmanager _logger;
     private DatabaseAccessLayer _sql;
     private Player _player;
     private Main _plugin;
 
-    public CommandTypeNext(ILogmanager logger, DatabaseAccessLayer sql, Player player, Main plugin) {
+    public CommandTypeProgress(ILogmanager logger, DatabaseAccessLayer sql, Player player, Main plugin) {
         super(logger);
         _logger = logger;
         _sql = sql;
         _player = player;
         _plugin = plugin;
     }
-    /*
-    * Command: /setQuest [PlayerName] next
-    * Gets Active PlayerQuest, Finish Quest if Task is finished
-    */
+
     @Override
     public CommandState ExecuteCommand(String[] args) {
 
@@ -36,11 +33,14 @@ public class CommandTypeNext extends Commandmanager implements ICommandType {
         Questmanager questmanager = new Questmanager(_logger, _sql, _plugin);
         Quest activePlayerQuest = questmanager.GetQuestByQuestId(questId);
         if(activePlayerQuest == null) return NoActiveQuestFound;
-        if(activePlayerQuest.GetTaskType().IsTaskFinished(_player)) {
-            if(!questmanager.FinishQuest(questId, _player)) return CouldNotFinishQuest;
+        if(!(activePlayerQuest.GetTaskType().IsTaskFinished(_player))) return TaskNotFinished;
+        if(_sql.PlayerQuestFinished(_player)) {
             if(!questmanager.StartNextQuest(questId, _player)) return CouldNotStartNextQuest;
+            return NextQuestStarted;
+        } else {
+            if (!questmanager.FinishQuest(questId, _player)) return CouldNotFinishQuest;
+            if(!_sql.SetPlayerQuestFinished(_player, true)) return CouldNotUpdateQuestFinished;
             return QuestFinished;
         }
-        else return TaskNotFinished;
     }
 }

@@ -12,9 +12,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 
 public class InventoryClickListener implements Listener{
 
-    private final ILogmanager _logger;
-    private final DatabaseAccessLayer _sql;
-    private final Main _plugin;
+    private ILogmanager _logger;
+    private DatabaseAccessLayer _sql;
+    private Main _plugin;
 
     public InventoryClickListener(ILogmanager logger, DatabaseAccessLayer sql, Main plugin) {
         _logger = logger;
@@ -33,7 +33,7 @@ public class InventoryClickListener implements Listener{
             if(!(event.getCurrentItem().getItemMeta().hasLocalizedName())) return;
             int questId = cm.GetIntFromStr(event.getCurrentItem().getItemMeta().getLocalizedName());
             QuestsBookGui gui = new QuestsBookGui(_logger, _sql, questId, player);
-
+            gui.openBookGui();
         }
     }
 }

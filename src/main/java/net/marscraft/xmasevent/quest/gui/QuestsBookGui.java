@@ -11,10 +11,10 @@ import java.util.ArrayList;
 
 public class QuestsBookGui {
 
-    private final ILogmanager _logger;
-    private final DatabaseAccessLayer _sql;
-    private final int _questId;
-    private final Player _player;
+    private ILogmanager _logger;
+    private DatabaseAccessLayer _sql;
+    private int _questId;
+    private Player _player;
 
 
     public QuestsBookGui(ILogmanager logger, DatabaseAccessLayer sql, int questId, Player player) {
@@ -22,10 +22,9 @@ public class QuestsBookGui {
         _sql = sql;
         _questId = questId;
         _player = player;
-        openBookGui();
     }
 
-    private void openBookGui() {
+    public void openBookGui() {
 
         ResultSet quest = _sql.GetQuest(_questId);
         String taskName = _sql.GetTaskNameByQuestId(_questId);

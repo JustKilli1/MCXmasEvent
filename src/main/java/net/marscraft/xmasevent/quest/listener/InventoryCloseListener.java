@@ -16,9 +16,9 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 
 public class InventoryCloseListener implements Listener {
-    private final ILogmanager _logger;
-    private final DatabaseAccessLayer _sql;
-    private final Main _plugin;
+    private ILogmanager _logger;
+    private DatabaseAccessLayer _sql;
+    private Main _plugin;
 
     public InventoryCloseListener(ILogmanager logger, DatabaseAccessLayer sql, Main plugin) {
         _logger = logger;
