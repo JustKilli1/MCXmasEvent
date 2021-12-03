@@ -6,6 +6,7 @@ public enum CommandState {
     QuestCreated,
     QuestAlreadyExists,
     QuestIdWrongFormat,
+    QuestNpcNameSet,
     CommandSyntaxError,
     CommandSyntaxErrorCreate,
     CommandSyntaxErrorEdit,

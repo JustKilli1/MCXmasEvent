@@ -20,7 +20,7 @@ public class PlayerJoinListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        _sql.AddNewPlayerToDatabase(event.getPlayer());
+        if(!_sql.AddNewPlayerToDatabase(event.getPlayer())) return;
         _logger.Info("Player Added: " + event.getPlayer().getName());
     }
 

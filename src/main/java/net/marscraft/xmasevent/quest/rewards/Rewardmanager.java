@@ -45,6 +45,7 @@ public class Rewardmanager {
     }
     public boolean GivePlayerQuestReward(int questId) {
         ResultSet rewards = _sql.GetQuestReward(questId);
+        ArrayList<RewardState> rewardResults = new ArrayList<>();
         try {
             while (rewards.next()) {
                 int rewardId = rewards.getInt("RewardId");
@@ -52,11 +53,27 @@ public class Rewardmanager {
                 String rewardString = rewards.getString("Reward");
 
                 IRewardType rewardType = GetRewardType(rewardName, rewardId, rewardString);
-                rewardStateActions(rewardType.GivePlayerReward());
+                rewardResults.add(rewardType.GivePlayerReward());
             }
         } catch (Exception ex) {
             _logger.Error(ex);
             return false;
+        }
+        int givenCount = 0;
+        int notEnoughSpaceInInvCount = 0;
+        for(RewardState rewardState : rewardResults) {
+            switch (rewardState) {
+                case GIVEN:
+                    givenCount++;
+                case NotEnoughSpaceInInventory:
+                    notEnoughSpaceInInvCount++;
+            }
+        }
+        if(givenCount == 0 && notEnoughSpaceInInvCount == 0) return true;
+        if(givenCount > 0) {
+            _messages.SendPlayerMessage("§c" + givenCount + " Items §aerhalten.");
+        } else if(notEnoughSpaceInInvCount > 0){
+            _messages.SendPlayerMessage("Du hast zu wenig platz im Inventar um deine Belohnung zu erhalten. §c" + notEnoughSpaceInInvCount + " Items §akönnen mit §c/quests rewards §aabgeholt werden.");
         }
         return true;
     }
@@ -68,21 +85,6 @@ public class Rewardmanager {
                 return rewardType;
             default:
                 return null;
-        }
-    }
-    private boolean rewardStateActions(RewardState rewardState) {
-        switch (rewardState) {
-            case GIVEN:
-                _messages.SendPlayerMessage("Du hast eine §cBelohnung §aerhalten");
-                return true;
-            case NotEnoughSpaceInInventory:
-                _messages.SendPlayerMessage("Du hast zu wenig platz im Inventar. Mit §c/quests rewards §akannst du deine Belohnung abholen");
-                return true;
-            case CouldNotAddUnclaimedPlayerReward:
-                _logger.Error("Could not Give Player QuestReward");
-                return false;
-            default:
-                return false;
         }
     }
 }

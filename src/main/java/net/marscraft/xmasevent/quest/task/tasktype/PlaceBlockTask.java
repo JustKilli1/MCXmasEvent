@@ -30,6 +30,9 @@ public class PlaceBlockTask implements ITaskType {
         _sql = sql;
         _questId = questId;
         _plugin = plugin;
+        _blockLoc = blockLoc;
+        _blockType = blockType;
+        _blockTypeGer = blockTypeGer;
     }
 
     public PlaceBlockTask(ILogmanager logger, DatabaseAccessLayer sql, Main plugin, int questId) {

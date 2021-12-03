@@ -26,12 +26,12 @@ public class DatabaseAccessLayer {
     }
 
     public boolean CreatePlayerQuestProgressTable() {
-        String sqlQuery = "CREATE TABLE IF NOT EXISTS PlayerQuestProgress (PlayerUUID VARCHAR(100) NOT NULL, PlayerName VARCHAR(100) NOT NULL, QuestId INT NOT NULL, QuestValueInt INT, QuestValueBool BOOLEAN);";
+        String sqlQuery = "CREATE TABLE IF NOT EXISTS PlayerQuestProgress (PlayerUUID VARCHAR(100) NOT NULL, PlayerName VARCHAR(100) NOT NULL, QuestId INT NOT NULL, QuestValueInt INT DEFAULT 0, QuestValueBool BOOLEAN DEFAULT false, QuestFinished BOOLEAN DEFAULT false);";
         return ExecuteSQLRequest(sqlQuery);
     }
     public boolean CreateQuestsTable() {
         String sqlQuery = "CREATE TABLE IF NOT EXISTS Quests (QuestId INT NOT NULL, QuestName VARCHAR(100) NOT NULL,QuestOrder INT, TaskName VARCHAR(100)," +
-                " StartingMessage VARCHAR(200) DEFAULT 'Not Set', EndMessage VARCHAR(200) DEFAULT 'Not Set', Description VARCHAR(200) DEFAULT 'Not Set', QuestSetupFinished boolean DEFAULT false);";
+                " StartMessage VARCHAR(200) DEFAULT 'Not Set', EndMessage VARCHAR(200) DEFAULT 'Not Set', Description VARCHAR(200) DEFAULT 'Not Set', NpcName VARCHAR(100) DEFAULT 'Trixi', QuestSetupFinished boolean DEFAULT false);";
         return ExecuteSQLRequest(sqlQuery);
     }
     public boolean CreateRewardsTable() {
@@ -93,6 +93,32 @@ public class DatabaseAccessLayer {
             return -1;
         }
 
+    }
+    public String GetQuestMessage(int questId, String tableColumnName) {
+        String sqlQuery ="SELECT * FROM Quests WHERE QuestId=" + questId;
+        ResultSet rs = QuerySQLRequest(sqlQuery);
+
+        try {
+            if(!rs.next()) return null;
+            return rs.getString(tableColumnName);
+        } catch (Exception ex) {
+            _logger.Error(ex);
+            return null;
+        }
+    }
+    public boolean AddQuestNpcName(int questId, String npcName) {
+        String sqlQuery = "UPDATE quests SET NpcName='" + npcName + "' WHERE QuestId=" + questId;
+        return ExecuteSQLRequest(sqlQuery);
+    }
+    public String GetQuestNpcName(int questId) {
+        ResultSet rs = GetQuest(questId);
+        try {
+            if(!rs.next()) return null;
+            return rs.getString("NpcName");
+        } catch (Exception ex) {
+            _logger.Error(ex);
+            return null;
+        }
     }
     public int GetLastQuestOrder() {
         String sqlQuery = "SELECT * FROM quests ORDER BY QuestOrder DESC LIMIT 1";
@@ -440,23 +466,23 @@ public class DatabaseAccessLayer {
         return -1;
     }
 
-    public void AddNewPlayerToDatabase(Player player) {
+    public boolean AddNewPlayerToDatabase(Player player) {
         String sqlQuery = "SELECT * FROM PlayerQuestProgress WHERE PlayerUUID='" + player.getUniqueId().toString() + "'";
         ResultSet rs = QuerySQLRequest(sqlQuery);
         try {
-            if(rs.next()) return;
+            if(rs.next()) return false;
         } catch (Exception ex) {
             _logger.Error(ex);
-            return;
+            return false;
         }
         int questId = GetNextQuestQuestID(0);
-        if (questId == 0) return;
+        if (questId == 0) return false;
         sqlQuery  = "INSERT INTO PlayerQuestProgress (PlayerUUID, PlayerName, QuestId, QuestValueInt) VALUES ('" +
                 player.getUniqueId().toString() + "', '" +
                 player.getName() + "', " +
                 questId + ", 0);";
 
-        ExecuteSQLRequest(sqlQuery);
+        return ExecuteSQLRequest(sqlQuery);
     }
     public boolean AddNewQuestToDatabase(Quest quest, String taskName) {
         String sqlQuery = "INSERT INTO Quests " +

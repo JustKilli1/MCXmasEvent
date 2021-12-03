@@ -8,6 +8,8 @@ public interface IMessagemanager {
 
     void SendPlayerMessage(String msg);
 
+    void SendNpcMessage(String npcName, String msg);
+
     void SendSyntaxErrorMessage(String syntax);
 
     void SendErrorMessage(String error);

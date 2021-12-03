@@ -34,7 +34,7 @@ public class CommandTypeCreate extends Commandmanager implements ICommandType {
         if(args.length < 3) return CommandState.CommandSyntaxErrorCreate;
 
         String questName = args[2];
-        String taskName = args[1];
+        String taskName = args[1].toLowerCase();
 
         if(!IsValidTaskName(taskName)) return CommandState.InvalidTaskName;
         if(args.length > 3) {

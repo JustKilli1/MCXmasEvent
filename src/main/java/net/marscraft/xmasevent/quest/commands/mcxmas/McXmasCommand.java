@@ -185,6 +185,12 @@ public class McXmasCommand extends Commandmanager implements CommandExecutor {
             case CouldNotUpdateQuestOrder:
                 _messages.SendPlayerMessage("Es ist ein Fehler beim löschen der Quest aufgetreten: QuestOrder konnte nicht geupdatet werden." );
                 break;
+            case DescriptionSet:
+                _messages.SendPlayerMessage("Beschreibung Gesetzt.");
+            case CouldNotSetReward:
+                _messages.SendPlayerMessage("Reward konnte nicht gesetzt werden!");
+            case QuestNpcNameSet:
+                _messages.SendPlayerMessage("Npc Name gesetzt.");
         }
     }
     private String getArgsString(String[] args, int starting) {

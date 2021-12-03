@@ -75,7 +75,7 @@ public class CommandTypeEdit extends Commandmanager implements ICommandType {
             return SUCCESS;
         } else if(args[2].equalsIgnoreCase("SetSMessage")) {
             // /mcxmas edit [questID] SetSMessage [Starting Message]
-            _sql.UpdateQuestMessage(questId, commandStr, "StartingMessage");
+            _sql.UpdateQuestMessage(questId, commandStr, "StartMessage");
             return StartingMessageSet;
         } else if(args[2].equalsIgnoreCase("SetEMessage")) {
             // /mcxmas edit [questID] SetEMessage [End Message]
@@ -90,7 +90,12 @@ public class CommandTypeEdit extends Commandmanager implements ICommandType {
             int questOrder = _sql.GetQuestOrder(questId);
             if(!(_sql.UpdateQuestOrder(questId, GetIntFromStr(args[3]), questOrder))) return FAILED;
             return QuestOrderSet;
-        } else{
+        } else if(args[2].equalsIgnoreCase("SetNpcName")) {
+            if(args.length >= 4) {
+                _sql.AddQuestNpcName(questId, commandStr);
+                return QuestNpcNameSet;
+            } else return CommandSyntaxErrorEdit;
+        } else {
             return CommandSyntaxErrorEdit;
         }
     }

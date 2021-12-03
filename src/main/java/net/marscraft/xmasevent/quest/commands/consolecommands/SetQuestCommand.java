@@ -41,13 +41,18 @@ public class SetQuestCommand extends Commandmanager implements CommandExecutor {
         if(player == null) return false;
         _messages = new Messagemanager(_logger, player);
         String commandOption = args[1].toLowerCase();
+        ICommandType commandType;
         switch (commandOption) {
             case "next":
-                ICommandType commandType = new CommandTypeNext(_logger, _sql, player, _plugin);
-                commandStateActions(commandType.ExecuteCommand(args), args);
+                commandType = new CommandTypeNext(_logger, _sql, player, _plugin);
                 break;
+            case "progress":
+                commandType = new CommandTypeProgress(_logger, _sql, player, _plugin);
+                break;
+            default:
+                return false;
         }
-
+        commandStateActions(commandType.ExecuteCommand(args), args);
         return false;
     }
 

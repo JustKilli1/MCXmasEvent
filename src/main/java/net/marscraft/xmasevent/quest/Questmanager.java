@@ -6,6 +6,7 @@ import net.marscraft.xmasevent.quest.task.Taskmanager;
 import net.marscraft.xmasevent.quest.task.tasktype.ITaskType;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
+import net.marscraft.xmasevent.shared.messagemanager.Messagemanager;
 import org.bukkit.entity.Player;
 import java.sql.ResultSet;
 
@@ -32,11 +33,23 @@ public class Questmanager {
 
     public boolean FinishQuest(int questId, Player player) {
         Rewardmanager rewardmanager = new Rewardmanager(_logger, _sql, player);
-        return rewardmanager.GivePlayerQuestReward(questId);
+        if(!(rewardmanager.GivePlayerQuestReward(questId))) return false;
+        if(!_sql.SetPlayerQuestFinished(player, true)) return false;
+        String endMessage = _sql.GetQuestMessage(questId, "EndMessage");
+        String npcName = _sql.GetQuestNpcName(questId);
+        Messagemanager messagemanager = new Messagemanager(_logger, player);
+        messagemanager.SendNpcMessage(npcName, endMessage);
+        return true;
     }
     public boolean StartNextQuest(int questId, Player player) {
         if(!_sql.ResetProgressValues(questId))return false;
-        return _sql.SetNextPlayerQuest(player.getUniqueId().toString(), questId);
+        if(!_sql.SetNextPlayerQuest(player.getUniqueId().toString(), questId)) return false;
+        int nextQuestId = _sql.GetActivePlayerQuestId(player);
+        String startMessage = _sql.GetQuestMessage(nextQuestId, "StartMessage");
+        String npcName = _sql.GetQuestNpcName(questId);
+        Messagemanager messagemanager = new Messagemanager(_logger, player);
+        messagemanager.SendNpcMessage(npcName, startMessage);
+        return true;
     }
 
     public Quest GetQuestByQuestId(int questId) {

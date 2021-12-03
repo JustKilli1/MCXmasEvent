@@ -23,6 +23,9 @@ public class Messagemanager implements IMessagemanager{
     }
 
     @Override
+    public void SendNpcMessage(String npcName, String msg) { _player.sendMessage("§6§l" + npcName + " §7§l> §a" + msg); }
+
+    @Override
     public void SendSyntaxErrorMessage(String syntax) { _player.sendMessage(_prefix + "§cSyntax Error use: " + syntax); }
 
     @Override

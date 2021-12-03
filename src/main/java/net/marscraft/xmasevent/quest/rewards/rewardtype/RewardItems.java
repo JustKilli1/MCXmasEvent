@@ -49,7 +49,6 @@ public class RewardItems extends Rewardmanager implements IRewardType{
         do {
             neededSpace += 1;
             neededStacks += maxStackSize;
-            _logger.Error(neededStacks + "");
         } while(neededStacks < 0);
         return neededSpace;
     }

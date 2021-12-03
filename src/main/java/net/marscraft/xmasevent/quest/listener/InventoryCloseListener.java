@@ -53,7 +53,7 @@ public class InventoryCloseListener implements Listener {
                 _logger.Error("PlayerUUID: " + player.getUniqueId());
                 return;
             }
-        } else if (event.getView().getTitle().equalsIgnoreCase("Quest Rewards")){
+        } else if (event.getView().getTitle().contains("Quest Rewards")){
             ItemStackSerializer serializer = new ItemStackSerializer(_logger);
             int questId = Integer.parseInt(event.getView().getTitle().split(" ")[0]);
             ItemStack[] invItems = inv.getContents();

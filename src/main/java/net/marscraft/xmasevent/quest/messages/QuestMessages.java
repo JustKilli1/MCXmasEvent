@@ -8,25 +8,26 @@ import org.bukkit.entity.Player;
 public class QuestMessages {
 
     private IMessagemanager _messagemanager;
-    private String _startingMessage;
-    private String _endingMessage;
+    private String _startMessage;
+    private String _endMessage;
     private boolean _questFinished;
     private Player _player;
     private ILogmanager _logger;
 
-    public QuestMessages(ILogmanager logger, String startingMessage, String endingMessage, boolean questFinished, Player player) {
+    public QuestMessages(ILogmanager logger, String startMessage, String endMessage, Player player) {
         _logger = logger;
-        _startingMessage = startingMessage;
-        _endingMessage = endingMessage;
-        _questFinished = questFinished;
+        _startMessage = startMessage;
+        _endMessage = endMessage;
         _player = player;
         _messagemanager = new Messagemanager(_logger, player);
     }
 
-    private void sendQuestMessageToPlayer() {
-        if(!_questFinished)
-            _messagemanager.SendPlayerMessage(_startingMessage);
-        else
-            _messagemanager.SendPlayerMessage(_endingMessage);
+    public boolean SendQuestStartMessage() {
+        _messagemanager.SendPlayerMessage(_startMessage);
+        return true;
+    }
+    public boolean SendQuestEndMessage() {
+        _messagemanager.SendPlayerMessage(_endMessage);
+        return true;
     }
 }

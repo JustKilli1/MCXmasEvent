@@ -1,8 +1,11 @@
 package net.marscraft.xmasevent.quest;
 
+import net.marscraft.xmasevent.quest.messages.QuestMessages;
 import net.marscraft.xmasevent.quest.task.tasktype.ITaskType;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
+
+import java.sql.ResultSet;
 
 public class Quest {
 
@@ -11,6 +14,7 @@ public class Quest {
     private String _questName;
     private ILogmanager _logger;
     private DatabaseAccessLayer _sql;
+
     public Quest(ILogmanager logger, DatabaseAccessLayer sql, int questId, String questName){
         _logger = logger;
         _sql = sql;

@@ -36,6 +36,7 @@ public class CommandTypeProgress extends Commandmanager implements ICommandType 
         if(!(activePlayerQuest.GetTaskType().IsTaskFinished(_player))) return TaskNotFinished;
         if(_sql.PlayerQuestFinished(_player)) {
             if(!questmanager.StartNextQuest(questId, _player)) return CouldNotStartNextQuest;
+            if(!_sql.SetPlayerQuestFinished(_player, false)) return CouldNotUpdateQuestFinished;
             return NextQuestStarted;
         } else {
             if (!questmanager.FinishQuest(questId, _player)) return CouldNotFinishQuest;
