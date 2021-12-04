@@ -1,7 +1,10 @@
 package net.marscraft.xmasevent.shared.Inventorys;
 
 import net.marscraft.xmasevent.Main;
-import net.marscraft.xmasevent.quest.gui.QuestsBookGui;
+import net.marscraft.xmasevent.quest.gui.bookgui.IBookGui;
+import net.marscraft.xmasevent.quest.gui.bookgui.KillMobsTaskBookGui;
+import net.marscraft.xmasevent.quest.gui.bookgui.PlaceBlockBookGui;
+import net.marscraft.xmasevent.quest.gui.bookgui.PlaceBlocksBookGui;
 import net.marscraft.xmasevent.quest.listener.EventStorage;
 import net.marscraft.xmasevent.shared.ItemBuilder;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
@@ -58,7 +61,6 @@ public class InvPlayerQuests extends Inventorymanager implements IInventoryType{
                         questBook = new ItemBuilder(Material.WRITABLE_BOOK).SetDisplayname("§c?").SetLore("§aSchließe den vorherigen Quest ab").Build();
                     else
                         return null;
-
                     inv.setItem(itemPos, questBook);
                     itemPos++;
                 }
@@ -89,8 +91,22 @@ public class InvPlayerQuests extends Inventorymanager implements IInventoryType{
         ItemMeta eventItemMeta = eventItem.getItemMeta();
         if(!(eventItemMeta.getPersistentDataContainer().has(key, PersistentDataType.INTEGER))) return false;
         int questId = eventItemMeta.getPersistentDataContainer().get(key, PersistentDataType.INTEGER);
-        QuestsBookGui gui = new QuestsBookGui(_logger, _sql, questId, player);
-        gui.openBookGui();
-        return true;
+        String taskName = _sql.GetTaskNameByQuestId(questId);
+        _logger.Error(taskName + " " + questId);
+        IBookGui bookGui;
+        switch (taskName.toLowerCase()) {
+            case "killmobstask":
+                bookGui = new KillMobsTaskBookGui(_logger, _sql);
+                break;
+            case "placeblocktask":
+                bookGui = new PlaceBlockBookGui(_logger, _sql);
+                break;
+            case "placeblockstask":
+                bookGui = new PlaceBlocksBookGui(_logger, _sql);
+                break;
+            default:
+                return false;
+        }
+        return bookGui.OpenBookGui(player, questId);
     }
 }
