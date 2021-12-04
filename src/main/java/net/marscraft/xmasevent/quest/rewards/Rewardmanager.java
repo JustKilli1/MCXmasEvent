@@ -26,7 +26,7 @@ public class Rewardmanager {
         _player = player;
         _messages = new Messagemanager(_logger, _player);
     }
-
+    //TODO Use Inventorymanager method
     public boolean EnoughSpaceInInventory(int neededSpace) {
         int space = 0;
         for(ItemStack iStack : GetPlayerInventory()) {
@@ -37,6 +37,7 @@ public class Rewardmanager {
         }
         return false;
     }
+    //TODO Use Inventorymanager method
     public ArrayList<ItemStack> GetPlayerInventory() {
         ArrayList<ItemStack> playerInventory = new ArrayList<>();
 

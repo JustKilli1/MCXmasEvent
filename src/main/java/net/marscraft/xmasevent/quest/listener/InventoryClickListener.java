@@ -3,6 +3,10 @@ package net.marscraft.xmasevent.quest.listener;
 import net.marscraft.xmasevent.Main;
 import net.marscraft.xmasevent.quest.commands.Commandmanager;
 import net.marscraft.xmasevent.quest.gui.QuestsBookGui;
+import net.marscraft.xmasevent.shared.Inventorys.IInventoryType;
+import net.marscraft.xmasevent.shared.Inventorys.InvAdminSetRewards;
+import net.marscraft.xmasevent.shared.Inventorys.InvPlayerQuests;
+import net.marscraft.xmasevent.shared.Inventorys.InvUnclaimedReward;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.entity.Player;
@@ -24,7 +28,24 @@ public class InventoryClickListener implements Listener{
 
     @EventHandler
     public void onInvClick(InventoryClickEvent event) {
+
         if(event.getCurrentItem() == null) return;
+        String titleName = event.getView().getTitle();
+        IInventoryType inventoryType;
+
+        if(titleName.equalsIgnoreCase("Quest Fortschritt")) {
+            inventoryType = new InvPlayerQuests(_logger, _sql);
+        } else if(titleName.equalsIgnoreCase("Quest Belohnungen")) {
+            inventoryType = new InvUnclaimedReward(_logger, _sql);
+        } else if(titleName.contains("Quest Rewards")) {
+            inventoryType = new InvAdminSetRewards(_logger, _sql);
+        } else {
+            return;
+        }
+        EventStorage eventStorage = new EventStorage();
+        eventStorage.SetInventoryClickEvent(event);
+        inventoryType.InventoryClickItem(eventStorage);
+/*      if(event.getCurrentItem() == null) return;
         if(!(event.getView().getTitle().equalsIgnoreCase("§0Quest Fortschritt")) || event.getView().getTitle().equalsIgnoreCase("§0Quest Belohnungen")) return;
         Player player = (Player) event.getWhoClicked();
         Commandmanager cm = new Commandmanager(_logger);
@@ -34,6 +55,6 @@ public class InventoryClickListener implements Listener{
             int questId = cm.GetIntFromStr(event.getCurrentItem().getItemMeta().getLocalizedName());
             QuestsBookGui gui = new QuestsBookGui(_logger, _sql, questId, player);
             gui.openBookGui();
-        }
+        }*/
     }
 }

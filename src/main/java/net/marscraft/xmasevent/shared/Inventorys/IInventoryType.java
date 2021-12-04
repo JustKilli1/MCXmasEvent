@@ -7,5 +7,5 @@ import org.bukkit.inventory.Inventory;
 public interface IInventoryType {
     public Inventory CreateInventory(Player player, int questId);
     public boolean OpenInventory(Player player, int questId);
-    public boolean CloseInventory(EventStorage eventStorage);
+    public boolean InventoryClickItem(EventStorage eventStorage);
 }

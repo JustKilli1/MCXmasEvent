@@ -31,7 +31,7 @@ public class RewardItems extends Rewardmanager implements IRewardType{
 
     @Override
     public RewardState GivePlayerReward() {
-        int neededSpace = getNeededInventorySpace();
+        int neededSpace = 1;
         if(!EnoughSpaceInInventory(neededSpace)) {
             if(!_sql.AddUnclaimedPlayerReward(_rewardId, _player)) return CouldNotAddUnclaimedPlayerReward;
             return NotEnoughSpaceInInventory;

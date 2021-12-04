@@ -8,7 +8,9 @@ import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
@@ -18,13 +20,14 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InvAdminSetRewards implements IInventoryType{
+public class InvAdminSetRewards extends Inventorymanager implements IInventoryType{
 
     private ILogmanager _logger;
     private DatabaseAccessLayer _sql;
     private String _inventoryName = "Quest Rewards";
 
     public InvAdminSetRewards(ILogmanager logger, DatabaseAccessLayer sql) {
+        super(logger);
         _logger = logger;
         _sql = sql;
     }
@@ -67,39 +70,29 @@ public class InvAdminSetRewards implements IInventoryType{
     }
 
     @Override
-    public boolean CloseInventory(EventStorage eventStorage) {
-        /*
-        * RewardIds werden nach quest id aus db geladen und in list gespeichert
-        * inv contents werden in itemstack list gespeichert
-        * itemstack list wird durchgegangen und geschaut ob item persistent data container mit key enthält
-        * wenn ja wird removed
-        * reward inv wird item gesetzt ohne persistant data container key
-        * */
-        InventoryCloseEvent event = eventStorage.GetInventoryCloseEvent();
-        Inventory eventInv = event.getInventory();
-        InventoryView invView = event.getView();
+    public boolean InventoryClickItem(EventStorage eventStorage) {
+        InventoryClickEvent event = eventStorage.GetInventoryClickEvent();
+        event.setCancelled(true);
+        Player player = (Player) event.getWhoClicked();
         NamespacedKey key = new NamespacedKey(Main.getPlugin(Main.class), "rewardId");
-        if(!(invView.getTitle().contains(_inventoryName))) return false;
+        Inventory eventInv = event.getInventory();
+        ItemStack eventItem = event.getCurrentItem();
+        if(eventItem == null) return false;
         int questId = Integer.parseInt(event.getView().getTitle().split(" ")[0]);
-        List<Integer> rewardIds = _sql.GetRewardIds(questId);
-        ItemStack[] eventInvContents = eventInv.getContents();
-        for(int i = 0; i < eventInvContents.length; i++) {
-            ItemStack eventInvIStack = eventInvContents[i];
-            if(eventInvIStack == null) continue;
-            ItemMeta eventInvIMeta = eventInvContents[i].getItemMeta();
-            if(eventInvIMeta.getPersistentDataContainer().has(key, PersistentDataType.INTEGER)) {
-                int rewardId = eventInvIMeta.getPersistentDataContainer().get(key, PersistentDataType.INTEGER);
-                rewardIds.remove(rewardIds.indexOf(rewardId));
-                eventInvIMeta.getPersistentDataContainer().remove(key);
-                eventInvIStack.setItemMeta(eventInvIMeta);
-                ItemStackSerializer serializer = new ItemStackSerializer(_logger);
-                _sql.SetReward(rewardId, serializer.ItemStackToBase64(eventInvIStack));
-            } else {
-                ItemStackSerializer serializer = new ItemStackSerializer(_logger);
-                _sql.AddNewReward("RewardItems", serializer.ItemStackToBase64(eventInvIStack), questId);
-            }
+        int newRewardId = _sql.GetLastRewardId() + 1;
+        if(eventItem.getItemMeta().getPersistentDataContainer().has(key, PersistentDataType.INTEGER)) {
+            eventInv.remove(eventItem);
+            int rewardId = eventItem.getItemMeta().getPersistentDataContainer().get(key, PersistentDataType.INTEGER);
+            ItemStack removedReward = RemoveDataFromItemStack(eventItem, key);
+            player.getInventory().addItem(removedReward);
+            if(!_sql.DeleteReward(rewardId)) return false;
+        } else {
+            eventItem = AddDataToItemStack(eventItem, key, newRewardId);
+            eventInv.addItem(eventItem);
+            player.getInventory().removeItem(eventItem);
+            ItemStackSerializer serializer = new ItemStackSerializer(_logger);
+            if(!_sql.AddNewReward("RewardItems", serializer.ItemStackToBase64(eventItem), questId)) return false;
         }
-        for(int rewardId : rewardIds) { _sql.DeleteReward(rewardId); }
         return true;
     }
 }

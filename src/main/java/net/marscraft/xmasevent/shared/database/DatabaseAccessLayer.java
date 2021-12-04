@@ -190,7 +190,7 @@ public class DatabaseAccessLayer {
         return ExecuteSQLRequest(sqlQuery);
     }
     public ArrayList<Integer> GetUnclaimedPlayerRewardIds(Player player) {
-        String sqlQuery = "SELECT * FROM UnclaimedRewards WHERE PlayerUUID='" + player.getUniqueId() + "'";
+        String sqlQuery = "SELECT * FROM UnclaimedRewards WHERE PlayerUUID='" + player.getUniqueId().toString() + "'";
         ResultSet rs = QuerySQLRequest(sqlQuery);
         ArrayList<Integer> rewardIds = new ArrayList<>();
         try {

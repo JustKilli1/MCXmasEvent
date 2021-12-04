@@ -1,21 +1,30 @@
 package net.marscraft.xmasevent.shared.Inventorys;
 
+import net.marscraft.xmasevent.Main;
+import net.marscraft.xmasevent.quest.gui.QuestsBookGui;
 import net.marscraft.xmasevent.quest.listener.EventStorage;
 import net.marscraft.xmasevent.shared.ItemBuilder;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
+
 import java.sql.ResultSet;
 
-public class InvPlayerQuests implements IInventoryType{
+public class InvPlayerQuests extends Inventorymanager implements IInventoryType{
 
     private ILogmanager _logger;
     private DatabaseAccessLayer _sql;
 
     public InvPlayerQuests(ILogmanager logger, DatabaseAccessLayer sql) {
+        super(logger);
         _logger = logger;
         _sql = sql;
     }
@@ -24,7 +33,8 @@ public class InvPlayerQuests implements IInventoryType{
     public Inventory CreateInventory(Player player, int questId) {
         int lastQuestId = _sql.GetLastQuestId();
         int inventorySize = (lastQuestId / 9) <= 1 ? 2 : lastQuestId + 1;
-        Inventory inv = Bukkit.createInventory(null, inventorySize * 9, "§0Quest Fortschritt");
+        Inventory inv = Bukkit.createInventory(null, inventorySize * 9, "Quest Fortschritt");
+        NamespacedKey key = new NamespacedKey(Main.getPlugin(Main.class), "questId");
         ResultSet rs = _sql.GetAllQuests();
 
         try {
@@ -36,13 +46,20 @@ public class InvPlayerQuests implements IInventoryType{
                 int questOrder = rs.getInt("QuestOrder");
                 boolean questSetupFinished = rs.getBoolean("QuestSetupFinished");
                 if (questSetupFinished) {
+                    ItemStack questBook;
                     if (activeQuestOrder == questOrder) {
-                        inv.setItem(itemPos, new ItemBuilder(Material.WRITABLE_BOOK).SetDisplayname("§c" + rs.getString("QuestName")).SetLore("§aAktiv").SetLocalizedName(questIds + "").Build());
+                        questBook = new ItemBuilder(Material.WRITABLE_BOOK).SetDisplayname("§c" + rs.getString("QuestName")).SetLore("§aAktiv").Build();
+                        questBook = AddDataToItemStack(questBook, key, questIds);
+                        inv.setItem(itemPos, questBook);
                     } else if (activeQuestOrder > questOrder) {
-                        inv.setItem(itemPos, new ItemBuilder(Material.WRITABLE_BOOK).SetDisplayname("§c" + rs.getString("QuestName")).SetLore("§aAbgeschlossen").SetLocalizedName(questIds + "").Build());
-                    } else if (activeQuestOrder < questOrder) {
-                        inv.setItem(itemPos, new ItemBuilder(Material.WRITABLE_BOOK).SetDisplayname("§c?").SetLore("§aSchließe den vorherigen Quest ab").SetLocalizedName("").Build());
-                    }
+                        questBook = new ItemBuilder(Material.WRITABLE_BOOK).SetDisplayname("§c" + rs.getString("QuestName")).SetLore("§aAbgeschlossen").Build();
+                        questBook = AddDataToItemStack(questBook, key, questIds);
+                    } else if (activeQuestOrder < questOrder)
+                        questBook = new ItemBuilder(Material.WRITABLE_BOOK).SetDisplayname("§c?").SetLore("§aSchließe den vorherigen Quest ab").Build();
+                    else
+                        return null;
+
+                    inv.setItem(itemPos, questBook);
                     itemPos++;
                 }
             }
@@ -62,7 +79,18 @@ public class InvPlayerQuests implements IInventoryType{
     }
 
     @Override
-    public boolean CloseInventory(EventStorage eventStorage) {
+    public boolean InventoryClickItem(EventStorage eventStorage) {
+        InventoryClickEvent event = eventStorage.GetInventoryClickEvent();
+        event.setCancelled(true);
+        Player player = (Player) event.getWhoClicked();
+        NamespacedKey key = new NamespacedKey(Main.getPlugin(Main.class), "questId");
+        ItemStack eventItem = event.getCurrentItem();
+        if(eventItem == null) return false;
+        ItemMeta eventItemMeta = eventItem.getItemMeta();
+        if(!(eventItemMeta.getPersistentDataContainer().has(key, PersistentDataType.INTEGER))) return false;
+        int questId = eventItemMeta.getPersistentDataContainer().get(key, PersistentDataType.INTEGER);
+        QuestsBookGui gui = new QuestsBookGui(_logger, _sql, questId, player);
+        gui.openBookGui();
         return true;
     }
 }
