@@ -1,5 +1,6 @@
 package net.marscraft.xmasevent.shared.Inventorys;
 
+import net.marscraft.xmasevent.quest.listener.EventStorage;
 import net.marscraft.xmasevent.shared.ItemBuilder;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
@@ -20,7 +21,7 @@ public class InvPlayerQuests implements IInventoryType{
     }
 
     @Override
-    public Inventory CreateInventory(Player player) {
+    public Inventory CreateInventory(Player player, int questId) {
         int lastQuestId = _sql.GetLastQuestId();
         int inventorySize = (lastQuestId / 9) <= 1 ? 2 : lastQuestId + 1;
         Inventory inv = Bukkit.createInventory(null, inventorySize * 9, "§0Quest Fortschritt");
@@ -31,14 +32,14 @@ public class InvPlayerQuests implements IInventoryType{
             while (rs.next()) {
                 int activeQuestId = _sql.GetActivePlayerQuestId(player);
                 int activeQuestOrder = _sql.GetQuestOrder(activeQuestId);
-                int questId = rs.getInt("QuestId");
+                int questIds = rs.getInt("QuestId");
                 int questOrder = rs.getInt("QuestOrder");
                 boolean questSetupFinished = rs.getBoolean("QuestSetupFinished");
                 if (questSetupFinished) {
                     if (activeQuestOrder == questOrder) {
-                        inv.setItem(itemPos, new ItemBuilder(Material.WRITABLE_BOOK).SetDisplayname("§c" + rs.getString("QuestName")).SetLore("§aAktiv").SetLocalizedName(questId + "").Build());
+                        inv.setItem(itemPos, new ItemBuilder(Material.WRITABLE_BOOK).SetDisplayname("§c" + rs.getString("QuestName")).SetLore("§aAktiv").SetLocalizedName(questIds + "").Build());
                     } else if (activeQuestOrder > questOrder) {
-                        inv.setItem(itemPos, new ItemBuilder(Material.WRITABLE_BOOK).SetDisplayname("§c" + rs.getString("QuestName")).SetLore("§aAbgeschlossen").SetLocalizedName(questId + "").Build());
+                        inv.setItem(itemPos, new ItemBuilder(Material.WRITABLE_BOOK).SetDisplayname("§c" + rs.getString("QuestName")).SetLore("§aAbgeschlossen").SetLocalizedName(questIds + "").Build());
                     } else if (activeQuestOrder < questOrder) {
                         inv.setItem(itemPos, new ItemBuilder(Material.WRITABLE_BOOK).SetDisplayname("§c?").SetLore("§aSchließe den vorherigen Quest ab").SetLocalizedName("").Build());
                     }
@@ -53,9 +54,15 @@ public class InvPlayerQuests implements IInventoryType{
     }
 
     @Override
-    public boolean OpenInventory(Player player) {
-        Inventory inv = CreateInventory(player);
+    public boolean OpenInventory(Player player, int questId) {
+        Inventory inv = CreateInventory(player, questId);
+        if(inv == null) return false;
         player.openInventory(inv);
+        return true;
+    }
+
+    @Override
+    public boolean CloseInventory(EventStorage eventStorage) {
         return true;
     }
 }

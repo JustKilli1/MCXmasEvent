@@ -16,6 +16,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
+import static net.marscraft.xmasevent.quest.commands.CommandState.NoUnclaimedRewardsFound;
+
 public class QuestsCommand extends Commandmanager implements CommandExecutor {
 
 
@@ -43,10 +45,10 @@ public class QuestsCommand extends Commandmanager implements CommandExecutor {
         IInventoryType inventoryType = new InvPlayerQuests(_logger, _sql);
 
         if (args.length == 0) {
-            inventoryType.OpenInventory(player);
+            inventoryType.OpenInventory(player, 0);
         } else if(args.length == 1 && args[0].equalsIgnoreCase("rewards")){
             ICommandType commandType = new CommandTypeQuestRewards(_logger, _sql, player);
-            commandType.ExecuteCommand(args);
+            if(commandType.ExecuteCommand(args) == NoUnclaimedRewardsFound) _messages.SendPlayerMessage("Keine Quest Belohnungen zum abholen gefunden");
             return true;
         } else {
             _messages.SendPlayerMessage("Benutze /quests oder /quests rewards");

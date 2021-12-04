@@ -4,21 +4,16 @@ import net.marscraft.xmasevent.Main;
 import net.marscraft.xmasevent.quest.commands.CommandState;
 import net.marscraft.xmasevent.quest.commands.Commandmanager;
 import net.marscraft.xmasevent.quest.commands.ICommandType;
-import net.marscraft.xmasevent.quest.rewards.ItemStackSerializer;
 import net.marscraft.xmasevent.quest.task.tasktype.ITaskType;
 import net.marscraft.xmasevent.quest.task.tasktype.KillMobsTask;
 import net.marscraft.xmasevent.quest.task.tasktype.PlaceBlockTask;
 import net.marscraft.xmasevent.quest.task.tasktype.PlaceBlocksTask;
+import net.marscraft.xmasevent.shared.Inventorys.IInventoryType;
+import net.marscraft.xmasevent.shared.Inventorys.InvAdminSetRewards;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import java.sql.ResultSet;
-import java.util.ArrayList;
 import static net.marscraft.xmasevent.quest.commands.CommandState.*;
 
 public class CommandTypeEdit extends Commandmanager implements ICommandType {
@@ -48,30 +43,8 @@ public class CommandTypeEdit extends Commandmanager implements ICommandType {
             return doActionsBasedOnTask(questId, args);
         } else if(args[2].equalsIgnoreCase("Rewards")){
             // /mcxmas edit [questID] Rewards
-            ItemStackSerializer serializer = new ItemStackSerializer(_logger);
-            ResultSet rewards = _sql.GetQuestReward(questId);
-            ArrayList<ItemStack> rewardItems = new ArrayList<>();
-            try {
-                while(rewards.next()) {
-                    int rewardId = rewards.getInt("RewardId");
-                    String rewardStr = rewards.getString("Reward");
-                    String rewardName = rewards.getString("RewardName");
-                    if(rewardName.equalsIgnoreCase("RewardItems")) {
-                        ItemStack reward = serializer.ItemStackFromBase64(rewardStr);
-                        ItemMeta rewardMeta = reward.getItemMeta();
-                        rewardMeta.setLocalizedName(rewardId + "");
-                        reward.setItemMeta(rewardMeta);
-                        rewardItems.add(reward);
-                    }
-                }
-                int inventoryRows = (rewardItems.size()/9) + 1;
-                Inventory inv = Bukkit.createInventory(null, inventoryRows * 9, questId + " Quest Rewards");
-                for(int i = 0; i < rewardItems.size(); i++) inv.setItem(i, rewardItems.get(i));
-                _player.openInventory(inv);
-            } catch (Exception ex) {
-                _logger.Error(ex);
-                return FAILED;
-            }
+            IInventoryType inventoryType = new InvAdminSetRewards(_logger, _sql);
+            inventoryType.OpenInventory(_player, questId);
             return SUCCESS;
         } else if(args[2].equalsIgnoreCase("SetSMessage")) {
             // /mcxmas edit [questID] SetSMessage [Starting Message]

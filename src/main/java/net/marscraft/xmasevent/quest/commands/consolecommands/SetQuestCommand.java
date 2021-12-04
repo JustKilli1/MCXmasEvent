@@ -62,10 +62,10 @@ public class SetQuestCommand extends Commandmanager implements CommandExecutor {
     private void commandStateActions(CommandState commandState, String[] args) {
         switch (commandState) {
             case InvalidPlayerName:
-                _messages.SendPlayerMessage("Spieler §c" + args[0] + " §awurde nicht gefunden");
+                _logger.Error("Player " + args[0] + " could not be found");
                 break;
             case QuestFinished:
-                _messages.SendPlayerMessage("Du hast die §cQuest §aerfolgreich abgeschlossen");
+                _logger.Info("Player " + args[0] + " finished a quest");
                 break;
             case CouldNotFinishQuest:
                 _logger.Error("Could not finish quest from " + args[0]);
@@ -74,7 +74,11 @@ public class SetQuestCommand extends Commandmanager implements CommandExecutor {
                 _logger.Info("No Active Quest for player " + args[0] + " found.");
                 break;
             case TaskNotFinished:
-                _messages.SendPlayerMessage("Du musst zuerst deine §cAufgabe §aerfüllen");
+                Player player = Bukkit.getPlayer(args[0]);
+                int questId = _sql.GetActivePlayerQuestId(player);
+                String npcName = _sql.GetQuestNpcName(questId);
+                String questName = _sql.GetQuestName(questId);
+                _messages.SendNpcMessage(npcName, "Du musst erst den Quest §c" + questName + " §abeenden.");
                 break;
         }
     }

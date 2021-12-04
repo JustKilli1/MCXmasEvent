@@ -2,7 +2,6 @@ package net.marscraft.xmasevent.shared.messagemanager;
 
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.entity.Player;
-import sun.util.resources.cldr.ext.CurrencyNames_lo;
 
 import java.sql.ResultSet;
 
@@ -21,19 +20,15 @@ public class Messagemanager implements IMessagemanager{
     public void SendPlayerMessage(String msg) {
         _player.sendMessage(_prefix + msg);
     }
-
     @Override
     public void SendNpcMessage(String npcName, String msg) { _player.sendMessage("§6§l" + npcName + " §7§l> §a" + msg); }
-
     @Override
     public void SendSyntaxErrorMessage(String syntax) { _player.sendMessage(_prefix + "§cSyntax Error use: " + syntax); }
-
     @Override
     public void SendErrorMessage(String command) { _player.sendMessage(_prefix + "§c" + command + " §acould not be executed!");}
 
     @Override
     public void SendQuestList(ResultSet values) {
-
         ResultSet rs = values;
         _player.sendMessage(_prefix + "Erstellte Quests");
         try {
@@ -51,15 +46,8 @@ public class Messagemanager implements IMessagemanager{
                 _player.sendMessage(" - Anfangs Nachricht: " + startingMessage);
                 _player.sendMessage(" - Beendigungs Nachricht: " + endMessage);
             }
-
         } catch (Exception ex) {
             _logger.Error(ex);
         }
-
-
-
-
     }
-
-
 }

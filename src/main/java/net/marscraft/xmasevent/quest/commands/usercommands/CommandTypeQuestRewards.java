@@ -29,7 +29,7 @@ public class CommandTypeQuestRewards extends Commandmanager implements ICommandT
     @Override
     public CommandState ExecuteCommand(String[] args) {
         IInventoryType invType = new InvUnclaimedReward(_logger, _sql);
-        invType.OpenInventory(_player);
+        if(!invType.OpenInventory(_player, 0)) return NoUnclaimedRewardsFound;
         return UnclaimedRewardsOpened;
     }
 }

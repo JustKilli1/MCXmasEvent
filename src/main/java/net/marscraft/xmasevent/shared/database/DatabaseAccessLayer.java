@@ -411,6 +411,17 @@ public class DatabaseAccessLayer {
         String sqlQuery = "UPDATE PlayerQuestProgress SET QuestId=" + nextQuestId + " WHERE PlayerUUID='" + playerUUID + "'";
         return ExecuteSQLRequest(sqlQuery);
     }
+    public String GetQuestName(int questId) {
+        ResultSet rs = GetQuest(questId);
+
+        try {
+            if(!rs.next()) return null;
+            return rs.getString("QuestName");
+        } catch (Exception ex) {
+            _logger.Error(ex);
+            return null;
+        }
+    }
     public int GetNextQuestQuestID(int questOrder) {
         String sqlQuery="SELECT * FROM quests WHERE QuestOrder>" + questOrder + " AND QuestSetupFinished=true ORDER BY QuestOrder";
         ResultSet rs = QuerySQLRequest(sqlQuery);

@@ -12,16 +12,11 @@ public interface ITaskType {
     * Loads Task From Database
     */
     boolean LoadTask();
-
     boolean ExecuteTask(EventStorage eventStorage, Player player);
-
     /*
     * Check if the Task is finished
     */
     boolean IsTaskFinished(Player player);
-
     String GetTaskName();
-
     int GetTaskId();
-
 }
