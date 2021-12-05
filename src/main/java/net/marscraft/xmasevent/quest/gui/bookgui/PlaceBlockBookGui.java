@@ -20,7 +20,7 @@ public class PlaceBlockBookGui extends BaseQuestsBookGui implements IBookGui{
 
     @Override
     public ItemStack CreateBookGui(Player player, int questId) {
-        ItemStack book = CreateBaseQuestsBookGui(player, questId);
+        ItemStack book = CreateBaseQuestsBookGui(questId);
         BookMeta bookMeta = (BookMeta) book.getItemMeta();
         String page = BuildTaskGui(questId, player);
         bookMeta.addPage(page);

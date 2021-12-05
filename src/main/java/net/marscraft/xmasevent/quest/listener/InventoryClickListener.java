@@ -1,10 +1,7 @@
 package net.marscraft.xmasevent.quest.listener;
 
 import net.marscraft.xmasevent.Main;
-import net.marscraft.xmasevent.shared.Inventorys.IInventoryType;
-import net.marscraft.xmasevent.shared.Inventorys.InvAdminSetRewards;
-import net.marscraft.xmasevent.shared.Inventorys.InvPlayerQuests;
-import net.marscraft.xmasevent.shared.Inventorys.InvUnclaimedReward;
+import net.marscraft.xmasevent.shared.Inventorys.*;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.event.EventHandler;
@@ -36,6 +33,8 @@ public class InventoryClickListener implements Listener{
             inventoryType = new InvUnclaimedReward(_logger, _sql);
         } else if(titleName.contains("Quest Rewards")) {
             inventoryType = new InvAdminSetRewards(_logger, _sql);
+        } else if(titleName.contains("CollectItemsTask")) {
+            inventoryType = new InvAdminCollectItems(_logger, _sql, _plugin);
         } else {
             return;
         }

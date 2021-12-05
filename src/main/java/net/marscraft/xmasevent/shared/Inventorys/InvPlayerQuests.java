@@ -103,6 +103,9 @@ public class InvPlayerQuests extends Inventorymanager implements IInventoryType{
             case "breakblockstask":
                 bookGui = new BreakBlocksBookGui(_logger, _sql);
                 break;
+            case "collectitemstask":
+                bookGui = new CollectItemsBookGui(_logger, _sql);
+                break;
             default:
                 return false;
         }

@@ -6,6 +6,9 @@ import net.marscraft.xmasevent.quest.Questmanager;
 import net.marscraft.xmasevent.quest.commands.CommandState;
 import net.marscraft.xmasevent.quest.commands.Commandmanager;
 import net.marscraft.xmasevent.quest.commands.ICommandType;
+import net.marscraft.xmasevent.quest.listener.EventStorage;
+import net.marscraft.xmasevent.quest.task.tasktype.CollectItemsTask;
+import net.marscraft.xmasevent.quest.task.tasktype.ITaskType;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.entity.Player;
@@ -30,6 +33,10 @@ public class CommandTypeProgress extends Commandmanager implements ICommandType 
     public CommandState ExecuteCommand(String[] args) {
 
         int questId = _sql.GetActivePlayerQuestId(_player);
+        ITaskType taskType = new CollectItemsTask(_logger, _sql, _plugin, questId);
+        EventStorage eventStorage = new EventStorage();
+        eventStorage.SetCommandArgs(args);
+        if(taskType.ExecuteTask(eventStorage, _player)) return TaskExecuted;
         Questmanager questmanager = new Questmanager(_logger, _sql, _plugin);
         Quest activePlayerQuest = questmanager.GetQuestByQuestId(questId);
         if(activePlayerQuest == null) return NoActiveQuestFound;

@@ -52,6 +52,7 @@ public final class Main extends JavaPlugin {
         _sql.CreateUnclaimedRewardsTable();
         _sql.CreatePlaceBlocksTaskTable();
         _sql.CreateBreakBlocksTaskTable();
+        _sql.CreateCollectItemsTaskTable();
         return true;
     }
     private boolean registerListener() {
@@ -61,6 +62,7 @@ public final class Main extends JavaPlugin {
         pm.registerEvents(new PlaceBlockListener(_logger, _sql, this), this);
         pm.registerEvents(new BreakBlockListener(_logger, _sql, this), this);
         pm.registerEvents(new InventoryClickListener(_logger, _sql, this), this);
+        pm.registerEvents(new InventoryCloseListener(_logger, _sql, this), this);
         return true;
     }
     private boolean registerCommands() {

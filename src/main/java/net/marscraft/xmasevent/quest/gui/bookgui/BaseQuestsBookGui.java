@@ -20,7 +20,7 @@ public class BaseQuestsBookGui {
         _sql = sql;
     }
 
-    public ItemStack CreateBaseQuestsBookGui(Player player, int questId) {
+    public ItemStack CreateBaseQuestsBookGui(int questId) {
         ResultSet quest = _sql.GetQuest(questId);
 
         try {

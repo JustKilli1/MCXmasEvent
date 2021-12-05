@@ -38,6 +38,7 @@ public enum CommandState {
     CouldNotFinishQuest,
     CouldNotStartNextQuest,
     TaskNotFinished,
+    TaskExecuted,
     NoUnclaimedRewardsFound,
     UnclaimedRewardsOpened
 }

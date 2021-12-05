@@ -67,6 +67,7 @@ public class PlaceBlocksTask implements ITaskType{
 
     @Override
     public boolean ExecuteTask(EventStorage eventStorage, Player player) {
+        if(!IsTaskActive(eventStorage)) return false;
         if(IsTaskFinished(player)) return false;
         BlockPlaceEvent event = eventStorage.GetBlockPlaceEvent();
         int questId = _sql.GetActivePlayerQuestId(player);

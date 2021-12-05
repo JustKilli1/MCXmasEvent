@@ -22,6 +22,8 @@ public class Commandmanager {
                 return true;
             case "breakblockstask":
                 return true;
+            case "collectitemstask":
+                return true;
             default:
                 return false;
         }

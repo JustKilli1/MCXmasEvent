@@ -6,6 +6,7 @@ import net.marscraft.xmasevent.quest.commands.Commandmanager;
 import net.marscraft.xmasevent.quest.commands.ICommandType;
 import net.marscraft.xmasevent.quest.task.tasktype.*;
 import net.marscraft.xmasevent.shared.Inventorys.IInventoryType;
+import net.marscraft.xmasevent.shared.Inventorys.InvAdminCollectItems;
 import net.marscraft.xmasevent.shared.Inventorys.InvAdminSetRewards;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
@@ -135,6 +136,13 @@ public class CommandTypeEdit extends Commandmanager implements ICommandType {
                 } else return CommandSyntaxErrorEdit;
                 if(!taskName.equalsIgnoreCase(oldTaskName)) _sql.DeleteTaskByQuestId(questId, oldTaskName);
                 return SUCCESS;
+            case "collectitemstask":
+                if(args.length == 4) {
+                    IInventoryType inventoryType = new InvAdminCollectItems(_logger, _sql, _plugin);
+                    if(!inventoryType.OpenInventory(_player, questId))return FAILED;
+                    if(!_sql.UpdateQuestTaskName(questId, taskName)) return FAILED;
+                    return SUCCESS;
+                } else return CommandSyntaxErrorEdit;
             default:
                 return FAILED;
             }
