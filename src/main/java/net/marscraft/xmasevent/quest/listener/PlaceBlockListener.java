@@ -34,7 +34,6 @@ public class PlaceBlockListener implements Listener {
         String taskName = _sql.GetTaskNameByQuestId(questId);
         Questmanager questmanager = new Questmanager(_logger, _sql, _plugin);
         Taskmanager taskmanager = questmanager.GetTaskManager();
-        if(!taskmanager.IsTaskActive(taskName, questId)) return;
         ITaskType taskType = taskmanager.GetTaskTypeByName(questId, taskName);
         EventStorage eventStorage = new EventStorage();
         eventStorage.SetBlockPlaceEvent(event);

@@ -1,10 +1,7 @@
 package net.marscraft.xmasevent.shared.Inventorys;
 
 import net.marscraft.xmasevent.Main;
-import net.marscraft.xmasevent.quest.gui.bookgui.IBookGui;
-import net.marscraft.xmasevent.quest.gui.bookgui.KillMobsTaskBookGui;
-import net.marscraft.xmasevent.quest.gui.bookgui.PlaceBlockBookGui;
-import net.marscraft.xmasevent.quest.gui.bookgui.PlaceBlocksBookGui;
+import net.marscraft.xmasevent.quest.gui.bookgui.*;
 import net.marscraft.xmasevent.quest.listener.EventStorage;
 import net.marscraft.xmasevent.shared.ItemBuilder;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
@@ -18,7 +15,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-
 import java.sql.ResultSet;
 
 public class InvPlayerQuests extends Inventorymanager implements IInventoryType{
@@ -103,6 +99,9 @@ public class InvPlayerQuests extends Inventorymanager implements IInventoryType{
                 break;
             case "placeblockstask":
                 bookGui = new PlaceBlocksBookGui(_logger, _sql);
+                break;
+            case "breakblockstask":
+                bookGui = new BreakBlocksBookGui(_logger, _sql);
                 break;
             default:
                 return false;

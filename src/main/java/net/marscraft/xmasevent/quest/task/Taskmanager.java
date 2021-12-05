@@ -1,10 +1,7 @@
 package net.marscraft.xmasevent.quest.task;
 
 import net.marscraft.xmasevent.Main;
-import net.marscraft.xmasevent.quest.task.tasktype.ITaskType;
-import net.marscraft.xmasevent.quest.task.tasktype.KillMobsTask;
-import net.marscraft.xmasevent.quest.task.tasktype.PlaceBlockTask;
-import net.marscraft.xmasevent.quest.task.tasktype.PlaceBlocksTask;
+import net.marscraft.xmasevent.quest.task.tasktype.*;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.Location;
@@ -37,6 +34,8 @@ public class Taskmanager {
                     return new PlaceBlockTask(_logger, _sql, _plugin, questId);
                 case "placeblockstask":
                     return new PlaceBlocksTask(_logger, _sql, _plugin, questId);
+                case "breakblockstask":
+                    return new BreakBlocksTask(_logger, _sql, _plugin, questId);
                 default:
                     _logger.Error("Task mit dem Namen " + taskName + " existiert nicht");
                     return null;
@@ -73,8 +72,8 @@ public class Taskmanager {
         }
     }
 
-    public Material GetPlaceBlocksBlockType(int questId) {
-        ResultSet rs = _sql.GetTaskByQuestId("PlaceBlocksTask", questId);
+    public Material GetBlocksBlockType(int questId, String tableName) {
+        ResultSet rs = _sql.GetTaskByQuestId(tableName, questId);
         try {
             if(!rs.next()) return null;
             String blockTypeStr = rs.getString("BlockType");
@@ -83,9 +82,5 @@ public class Taskmanager {
             _logger.Error(ex);
             return null;
         }
-    }
-    public boolean IsTaskActive(String taskName, int questId) {
-        if(_sql.GetTaskNameByQuestId(questId) == null) return false;
-        return _sql.GetTaskNameByQuestId(questId).equalsIgnoreCase(taskName);
     }
 }

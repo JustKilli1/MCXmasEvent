@@ -7,12 +7,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import java.sql.ResultSet;
 
-public class PlaceBlocksBookGui extends BaseQuestsBookGui implements IBookGui{
+public class BreakBlocksBookGui extends BaseQuestsBookGui implements IBookGui{
 
     private ILogmanager _logger;
     private DatabaseAccessLayer _sql;
 
-    public PlaceBlocksBookGui(ILogmanager logger, DatabaseAccessLayer sql) {
+    public BreakBlocksBookGui(ILogmanager logger, DatabaseAccessLayer sql) {
         super(logger, sql);
         _logger = logger;
         _sql = sql;
@@ -37,9 +37,9 @@ public class PlaceBlocksBookGui extends BaseQuestsBookGui implements IBookGui{
 
     /*
     * Beispiel TaskGui:
-    * Aufgabe: Platziere 64 Cobblestone
+    * Aufgabe: Baue 64 Cobblestone blöcke ab
     *
-    * Platzierte Cobblestone blöcke: 32/64
+    * Abgebaute Cobblestone blöcke: 32/64
     * Aktiv
     * */
     @Override
@@ -54,9 +54,9 @@ public class PlaceBlocksBookGui extends BaseQuestsBookGui implements IBookGui{
             String blockTypeGer = task.getString("BlockTypeGer");
             int amount = task.getInt("BlockAmount");
             description =
-                            "Aufgabe: Platziere " + amount + " " + blockTypeGer + "" +
+                            "Aufgabe: Baue " + amount + " " + blockTypeGer + " ab" +
                             "\n\n" +
-                            "Platzierte " + blockTypeGer + " blöcke: \n";
+                            "Abgebaute " + blockTypeGer + " blöcke: \n";
             if (activeQuestId > questId) {
                 description += amount + "/" + amount + "\n§a§lAbgeschlossen";
                 return description;

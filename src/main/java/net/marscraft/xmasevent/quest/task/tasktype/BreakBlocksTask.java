@@ -8,13 +8,12 @@ import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.block.BlockPlaceEvent;
-
+import org.bukkit.event.block.BlockBreakEvent;
 import java.sql.ResultSet;
 
-public class PlaceBlocksTask implements ITaskType{
+public class BreakBlocksTask implements ITaskType{
 
-    private String _taskName = "placeblockstask";
+    private String _taskName = "breakblockstask";
     private String _blockType;
     private String _blockTypeGer;
     private int _questId, _blockAmount;
@@ -22,7 +21,7 @@ public class PlaceBlocksTask implements ITaskType{
     private DatabaseAccessLayer _sql;
     private Main _plugin;
 
-    public PlaceBlocksTask(ILogmanager logger, DatabaseAccessLayer sql, Main plugin, int questId, String blockType, String blockTypeGer, int blockAmount) {
+    public BreakBlocksTask(ILogmanager logger, DatabaseAccessLayer sql, Main plugin, int questId, String blockType, String blockTypeGer, int blockAmount) {
         _logger = logger;
         _sql = sql;
         _plugin = plugin;
@@ -32,7 +31,7 @@ public class PlaceBlocksTask implements ITaskType{
         _blockTypeGer = blockTypeGer;
     }
 
-    public PlaceBlocksTask(ILogmanager logger, DatabaseAccessLayer sql, Main plugin, int questId) {
+    public BreakBlocksTask(ILogmanager logger, DatabaseAccessLayer sql, Main plugin, int questId) {
         _logger = logger;
         _sql = sql;
         _plugin = plugin;
@@ -44,9 +43,9 @@ public class PlaceBlocksTask implements ITaskType{
     public boolean CreateTask() {
         boolean taskExists = _sql.TaskExists(_questId, _taskName);
         if(taskExists)
-            _sql.UpdatePlaceBlocksTask(_questId, _blockAmount, _blockType, _blockTypeGer);
+            _sql.UpdateBreakBlocksTask(_questId, _blockAmount, _blockType, _blockTypeGer);
         else
-            _sql.CreatePlaceBlocksTask(_questId, _blockAmount, _blockType, _blockTypeGer);
+            _sql.CreateBreakBlocksTask(_questId, _blockAmount, _blockType, _blockTypeGer);
         return _sql.UpdateQuestTaskName(_questId, _taskName);
     }
 
@@ -67,17 +66,18 @@ public class PlaceBlocksTask implements ITaskType{
 
     @Override
     public boolean ExecuteTask(EventStorage eventStorage, Player player) {
+        if(!IsTaskActive(eventStorage)) return false;
         if(IsTaskFinished(player)) return false;
-        BlockPlaceEvent event = eventStorage.GetBlockPlaceEvent();
+        BlockBreakEvent event = eventStorage.GetBlockBreakEvent();
+        TaskProgressMessages taskMessages = new TaskProgressMessages(_logger, _sql, player);
         int questId = _sql.GetActivePlayerQuestId(player);
         Taskmanager taskmanager = new Taskmanager(_logger, _sql, _plugin);
-        TaskProgressMessages taskMessages = new TaskProgressMessages(_logger, _sql, player);
         Material eventMat = event.getBlock().getType();
         Material dbMat = taskmanager.GetBlocksBlockType(questId, _taskName);
         if(eventMat != dbMat) return false;
         if(!_sql.AddPlayerMobKill(player, questId)) return false;
         int playerProgressValue = _sql.GetPlayerQuestValueInt(player);
-        taskMessages.SendQuestValueIntProgressMsg(playerProgressValue, _blockAmount, "Platzierte " + _blockTypeGer + " blöcke:");
+        taskMessages.SendQuestValueIntProgressMsg(playerProgressValue, _blockAmount, "Abgebaute " + _blockTypeGer + " blöcke:");
         return true;
     }
 
@@ -85,19 +85,28 @@ public class PlaceBlocksTask implements ITaskType{
     public boolean IsTaskFinished(Player player) {
         int questId = _sql.GetActivePlayerQuestId(player);
         int blockAmount = _sql.GetBlocksTaskBlockAmount(questId, _taskName);
-        int playerPlacedBlocks = _sql.GetPlayerQuestValueInt(player) + 1;
-        if (playerPlacedBlocks >= blockAmount) return true;
+        int playerPlacedBlocks = _sql.GetPlayerQuestValueInt(player);
+        TaskProgressMessages taskMessages = new TaskProgressMessages(_logger, _sql, player);
+        if (playerPlacedBlocks >= blockAmount){
+            taskMessages.SendQuestFinishedMsg();
+            return true;
+        }
         return false;
     }
 
+    @Override
     public boolean IsTaskActive(EventStorage eventStorage) {
-        if(eventStorage.GetBlockPlaceEvent() == null) return false;
+        if(eventStorage.GetBlockBreakEvent() == null) return false;
         return true;
     }
 
     @Override
-    public String GetTaskName() { return _taskName; }
+    public String GetTaskName() {
+        return null;
+    }
 
     @Override
-    public int GetTaskId() { return 0; }
+    public int GetTaskId() {
+        return 0;
+    }
 }

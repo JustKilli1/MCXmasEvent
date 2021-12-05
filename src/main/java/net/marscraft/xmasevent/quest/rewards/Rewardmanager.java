@@ -66,16 +66,18 @@ public class Rewardmanager {
             switch (rewardState) {
                 case GIVEN:
                     givenCount++;
+                    break;
                 case NotEnoughSpaceInInventory:
                     notEnoughSpaceInInvCount++;
+                    break;
             }
         }
         if(givenCount == 0 && notEnoughSpaceInInvCount == 0) return true;
-        if(givenCount > 0) {
+        if(givenCount > 0)
             _messages.SendPlayerMessage("§c" + givenCount + " Items §aerhalten.");
-        } else if(notEnoughSpaceInInvCount > 0){
+        if(notEnoughSpaceInInvCount > 0)
             _messages.SendPlayerMessage("Du hast zu wenig platz im Inventar um deine Belohnung zu erhalten. §c" + notEnoughSpaceInInvCount + " Items §akönnen mit §c/quests rewards §aabgeholt werden.");
-        }
+
         return true;
     }
     public IRewardType GetRewardType(String rewardName,int rewardId, String rewardString) {

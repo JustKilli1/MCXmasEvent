@@ -54,6 +54,10 @@ public class DatabaseAccessLayer {
         String sqlQuery = "CREATE TABLE IF NOT EXISTS PlaceBlocksTask (TaskId INT NOT NULL, TaskName VARCHAR(100) DEFAULT 'PlaceBlocksTask', QuestId INT NOT NULL, BlockType VARCHAR(100), BlockTypeGer VARCHAR(100), BlockAmount INT);";
         return ExecuteSQLRequest(sqlQuery);
     }
+    public boolean CreateBreakBlocksTaskTable() {
+        String sqlQuery = "CREATE TABLE IF NOT EXISTS BreakBlocksTask (TaskId INT NOT NULL, TaskName VARCHAR(100) DEFAULT 'BreakBlocksTask', QuestId INT NOT NULL, BlockType VARCHAR(100), BlockTypeGer VARCHAR(100), BlockAmount INT);";
+        return ExecuteSQLRequest(sqlQuery);
+    }
 
 
 
@@ -261,8 +265,24 @@ public class DatabaseAccessLayer {
                 "VALUES (" + taskId + ", " + questId + ", '" + blockType + "', '" + blockTypeGer + "', " + blockAmount + ")";
         return ExecuteSQLRequest(sqlQuery);
     }
+    public boolean CreateBreakBlocksTask(int questId, int blockAmount, String blockType, String blockTypeGer) {
+        int taskId = GetLastTaskId("PlaceBlocksTask");
+        String sqlQuery = "INSERT INTO BreakBlocksTask " +
+                "(TaskId, QuestId, BlockType, BlockTypeGer, BlockAmount) " +
+                "VALUES (" + taskId + ", " + questId + ", '" + blockType + "', '" + blockTypeGer + "', " + blockAmount + ")";
+        return ExecuteSQLRequest(sqlQuery);
+    }
     public boolean UpdatePlaceBlocksTask(int questId, int blockAmount, String blockType, String blockTypeGer) {
-        String sqlQuery = "UPDATE PlaceBLocksTask SET " +
+        String sqlQuery = "UPDATE PlaceBlocksTask SET " +
+                "QuestId=" + questId + ", " +
+                "BlockType='" + blockType + "', " +
+                "BlockTypeGer='" + blockTypeGer + "', " +
+                "BlockAmount=" + blockAmount + " " +
+                "WHERE QuestId=" + questId;
+        return ExecuteSQLRequest(sqlQuery);
+    }
+    public boolean UpdateBreakBlocksTask(int questId, int blockAmount, String blockType, String blockTypeGer) {
+        String sqlQuery = "UPDATE BreakBlocksTask SET " +
                 "QuestId=" + questId + ", " +
                 "BlockType='" + blockType + "', " +
                 "BlockTypeGer='" + blockTypeGer + "', " +
@@ -309,8 +329,8 @@ public class DatabaseAccessLayer {
             return null;
         }
     }
-    public int GetPlaceBlocksTaskBlockAmount(int questId) {
-        String sqlQuery = "SELECT * FROM PlaceBlocksTask WHERE QuestId=" + questId;
+    public int GetBlocksTaskBlockAmount(int questId, String tableName) {
+        String sqlQuery = "SELECT * FROM " + tableName + " WHERE QuestId=" + questId;
         ResultSet rs = QuerySQLRequest(sqlQuery);
 
         try {
@@ -342,7 +362,7 @@ public class DatabaseAccessLayer {
         ResultSet rs = QuerySQLRequest(sqlQuery);
 
         try {
-            if(!rs.next())return 0;
+            if(!rs.next())return GetLastQuestOrder() + 1;
             else return rs.getInt("QuestOrder");
         } catch (Exception ex) {
             _logger.Error(ex);
@@ -427,7 +447,7 @@ public class DatabaseAccessLayer {
         ResultSet rs = QuerySQLRequest(sqlQuery);
 
         try {
-            if(!rs.next()) return 0;
+            if(!rs.next()) return GetLastQuestId() + 1;
             else return rs.getInt("QuestId");
         } catch (Exception ex) {
             _logger.Error(ex);

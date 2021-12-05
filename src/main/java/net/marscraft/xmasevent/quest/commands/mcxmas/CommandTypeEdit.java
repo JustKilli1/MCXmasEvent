@@ -4,10 +4,7 @@ import net.marscraft.xmasevent.Main;
 import net.marscraft.xmasevent.quest.commands.CommandState;
 import net.marscraft.xmasevent.quest.commands.Commandmanager;
 import net.marscraft.xmasevent.quest.commands.ICommandType;
-import net.marscraft.xmasevent.quest.task.tasktype.ITaskType;
-import net.marscraft.xmasevent.quest.task.tasktype.KillMobsTask;
-import net.marscraft.xmasevent.quest.task.tasktype.PlaceBlockTask;
-import net.marscraft.xmasevent.quest.task.tasktype.PlaceBlocksTask;
+import net.marscraft.xmasevent.quest.task.tasktype.*;
 import net.marscraft.xmasevent.shared.Inventorys.IInventoryType;
 import net.marscraft.xmasevent.shared.Inventorys.InvAdminSetRewards;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
@@ -123,9 +120,19 @@ public class CommandTypeEdit extends Commandmanager implements ICommandType {
                     int blockAmount = GetIntFromStr(args[6]);
                     taskType = new PlaceBlocksTask(_logger, _sql, _plugin, questId, blockType, blockTypeGer, blockAmount);
                     if(!taskType.CreateTask()) return CouldNotCreateTask;
-                } else {
-                    return CommandSyntaxErrorEdit;
-                }
+                } else return CommandSyntaxErrorEdit;
+                if(!taskName.equalsIgnoreCase(oldTaskName)) _sql.DeleteTaskByQuestId(questId, oldTaskName);
+                return SUCCESS;
+            case "breakblockstask":
+                // /mcxmas edit [questId] SetTask BreakBlocksTask [BlockType] [BlockTypeGer] [BlockAmount]
+                if(args.length == 7) {
+                    String blockType = args[4];
+                    String blockTypeGer = args[5];
+                    if(!IsValidBlock(blockType));
+                    int blockAmount = GetIntFromStr(args[6]);
+                    taskType = new BreakBlocksTask(_logger, _sql, _plugin, questId, blockType, blockTypeGer, blockAmount);
+                    if(!taskType.CreateTask()) return CouldNotCreateTask;
+                } else return CommandSyntaxErrorEdit;
                 if(!taskName.equalsIgnoreCase(oldTaskName)) _sql.DeleteTaskByQuestId(questId, oldTaskName);
                 return SUCCESS;
             default:

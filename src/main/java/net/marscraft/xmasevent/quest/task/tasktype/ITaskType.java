@@ -17,6 +17,7 @@ public interface ITaskType {
     * Check if the Task is finished
     */
     boolean IsTaskFinished(Player player);
+    boolean IsTaskActive(EventStorage eventStorage);
     String GetTaskName();
     int GetTaskId();
 }

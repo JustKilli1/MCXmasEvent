@@ -74,11 +74,12 @@ public class PlaceBlockTask implements ITaskType {
 
     @Override
     public boolean ExecuteTask(EventStorage eventStorage, Player player) {
+        if(!IsTaskActive(eventStorage)) return false;
+        if(IsTaskFinished(player)) return false;
         BlockPlaceEvent event = eventStorage.GetBlockPlaceEvent();
         int questId = _sql.GetActivePlayerQuestId(player);
 
         Taskmanager taskmanager = new Taskmanager(_logger, _sql, _plugin);
-        if(!taskmanager.IsTaskActive(_taskName, questId)) return false;
         HashMap<Material, Location> blockInfo = taskmanager.GetPlaceBlockTaskBlockInfo(questId);
         if(blockInfo == null)return false;
         if(blockInfo.keySet().size() != 1)return false;
@@ -106,6 +107,11 @@ public class PlaceBlockTask implements ITaskType {
 
     @Override
     public boolean IsTaskFinished(Player player) { return _sql.GetPlayerQuestValueBool(player); }
+
+    public boolean IsTaskActive(EventStorage eventStorage) {
+        if(eventStorage.GetBlockPlaceEvent() == null) return false;
+        return true;
+    }
 
     @Override
     public String GetTaskName() {

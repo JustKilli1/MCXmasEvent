@@ -20,6 +20,8 @@ public class Commandmanager {
                 return true;
             case "placeblockstask":
                 return true;
+            case "breakblockstask":
+                return true;
             default:
                 return false;
         }

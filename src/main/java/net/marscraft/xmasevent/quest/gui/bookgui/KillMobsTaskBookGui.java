@@ -53,7 +53,10 @@ public class KillMobsTaskBookGui extends BaseQuestsBookGui implements IBookGui{
             if(!task.next()) return null;
             String mobTypeGer = task.getString("MobTypeGer");
             int amount = task.getInt("NeededMobs");
-            description = "Aufgabe: Töte " + amount + " " + mobTypeGer + "\n\nBesiegte " + mobTypeGer + ": ";
+            description =
+                            "Aufgabe: Töte " + amount + " " + mobTypeGer + "" +
+                            "\n\n" +
+                            "Besiegte " + mobTypeGer + ": \n";
             if (activeQuestId > questId) {
                 description += amount + "/" + amount + "\n§a§lAbgeschlossen";
                 return description;

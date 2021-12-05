@@ -4,6 +4,7 @@ import net.marscraft.xmasevent.Main;
 import net.marscraft.xmasevent.quest.Questmanager;
 import net.marscraft.xmasevent.quest.listener.EventStorage;
 import net.marscraft.xmasevent.quest.task.Taskmanager;
+import net.marscraft.xmasevent.quest.task.tasktype.taskprogressmessages.TaskProgressMessages;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.entity.EntityType;
@@ -70,8 +71,11 @@ public class KillMobsTask implements ITaskType{
 
     @Override
     public boolean ExecuteTask(EventStorage eventStorage, Player player) {
+        if(!IsTaskActive(eventStorage)) return false;
+        if(IsTaskFinished(player)) return false;
         EntityDeathEvent event = eventStorage.GetEntityDeathEvent();
         Taskmanager taskmanager = new Taskmanager(_logger, _sql, _plugin);
+        TaskProgressMessages taskMessages = new TaskProgressMessages(_logger, _sql, player);
         int questId = _sql.GetActivePlayerQuestId(player);
         EntityType eType = taskmanager.GetKillMobsTaskMobType(questId);
 
@@ -80,34 +84,41 @@ public class KillMobsTask implements ITaskType{
             _logger.Error("QuestId: " + questId);
             return false;
         }
-        if(event.getEntityType() == eType){
-            if(!IsTaskFinished(player))
-                _sql.AddPlayerMobKill(player, questId);
-            return true;
-        }
-        return false;
+        if(event.getEntityType() != eType) return false;
+        if(!_sql.AddPlayerMobKill(player, questId)) return false;
+        int playerProgressValue = _sql.GetPlayerQuestValueInt(player);
+        taskMessages.SendQuestValueIntProgressMsg(playerProgressValue, _mobs, "Getötete " + _mobTypeGer + ":");
+        return true;
     }
 
     @Override
     public boolean IsTaskFinished(Player player) {
-
         if(_mobs == 0) return false;
 
         ResultSet rs = _sql.GetTaskByQuestId(_taskName, _questId);
         int playerProgress = _sql.GetPlayerQuestValueInt(player);
+        TaskProgressMessages taskMessages = new TaskProgressMessages(_logger, _sql, player);
 
         try{
             if(!rs.next())return false; //TODO Fehlerbehandlung Task abbrechen
             int neededMobs = rs.getInt("NeededMobs");
             if(neededMobs == playerProgress)return true;
             if(neededMobs == playerProgress + 1){
-                _sql.AddPlayerMobKill(player, _sql.GetActivePlayerQuestId(player));
+                int activeQuestId = _sql.GetActivePlayerQuestId(player);
+                if(activeQuestId == 0) return false;
+                if(!_sql.AddPlayerMobKill(player, activeQuestId)) return false;
+                taskMessages.SendQuestFinishedMsg();
                 return true;
             }
         } catch(Exception ex) {
             _logger.Error(ex);
         }
         return false;
+    }
+
+    public boolean IsTaskActive(EventStorage eventStorage) {
+        if(eventStorage.GetEntityDeathEvent() == null) return false;
+        return true;
     }
 
     @Override
