@@ -1,7 +1,6 @@
 package net.marscraft.xmasevent.quest.commands.mcxmas;
 
 import net.marscraft.xmasevent.Main;
-import net.marscraft.xmasevent.quest.Quest;
 import net.marscraft.xmasevent.quest.Questmanager;
 import net.marscraft.xmasevent.quest.commands.CommandState;
 import net.marscraft.xmasevent.quest.commands.Commandmanager;
@@ -16,7 +15,6 @@ public class CommandTypeCreate extends Commandmanager implements ICommandType {
     private DatabaseAccessLayer _sql;
     private Main _plugin;
     private IMessagemanager _messages;
-    private Quest _quest;
     private Questmanager _questmanager;
 
     public CommandTypeCreate(ILogmanager logger, DatabaseAccessLayer sql, Main plugin, IMessagemanager messages) {
@@ -28,11 +26,15 @@ public class CommandTypeCreate extends Commandmanager implements ICommandType {
         _questmanager = new Questmanager(_logger, _sql, plugin);
     }
 
+    /*
+    * Command: /mcxmas create [TaskName] [QuestName]
+    * Creates New Quest based on User Input
+    */
     public CommandState ExecuteCommand(String[] args) {
         if(args.length < 3) return CommandState.CommandSyntaxErrorCreate;
 
         String questName = args[2];
-        String taskName = args[1];
+        String taskName = args[1].toLowerCase();
 
         if(!IsValidTaskName(taskName)) return CommandState.InvalidTaskName;
         if(args.length > 3) {

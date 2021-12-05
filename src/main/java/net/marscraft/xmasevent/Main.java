@@ -1,15 +1,15 @@
 package net.marscraft.xmasevent;
 
-import net.marscraft.xmasevent.quest.commands.ShowPoint;
+import net.marscraft.xmasevent.quest.commands.consolecommands.SetQuestCommand;
 import net.marscraft.xmasevent.quest.commands.mcxmas.McXmasCommand;
-import net.marscraft.xmasevent.quest.listener.KillMobListener;
-import net.marscraft.xmasevent.quest.listener.PlaceBlockListener;
-import net.marscraft.xmasevent.quest.listener.PlayerJoinListener;
+import net.marscraft.xmasevent.quest.commands.usercommands.QuestsCommand;
+import net.marscraft.xmasevent.quest.listener.*;
 import net.marscraft.xmasevent.shared.configmanager.Configmanager;
 import net.marscraft.xmasevent.shared.configmanager.IConfigmanager;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import net.marscraft.xmasevent.shared.logmanager.Logmanager;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
@@ -31,16 +31,11 @@ public final class Main extends JavaPlugin {
         _logger.Info("Database Connected");
 
         _logger.Info("Creating required Databases...");
-        createDatabaseTable();
+        createDatabaseTables();
         _logger.Info("All Databases created.");
-
+        registerListener();
+        registerCommands();
         _logger.Info("MarsCraft Xmas Event loaded.");
-
-        getServer().getPluginManager().registerEvents(new KillMobListener(_logger, _sql, this), this);
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(_logger, _sql), this);
-        getServer().getPluginManager().registerEvents(new PlaceBlockListener(_logger, _sql, this), this);
-        getCommand("test").setExecutor(new ShowPoint(_logger, _sql));//TODO DEBUG
-        getCommand("mcxmas").setExecutor(new McXmasCommand(_logger, _sql, this));
     }
 
     @Override
@@ -48,12 +43,31 @@ public final class Main extends JavaPlugin {
         _sql.disable();
     }
 
-    private boolean createDatabaseTable() {
+    private boolean createDatabaseTables() {
         _sql.CreatePlayerQuestProgressTable();
         _sql.CreateQuestsTable();
         _sql.CreateKillMobsTaskTable();
         _sql.CreatePlaceBlockTaskTable();
         _sql.CreateRewardsTable();
+        _sql.CreateUnclaimedRewardsTable();
+        _sql.CreatePlaceBlocksTaskTable();
+        _sql.CreateBreakBlocksTaskTable();
+        _sql.CreateCollectItemsTaskTable();
+        return true;
+    }
+    private boolean registerListener() {
+        PluginManager pm = getServer().getPluginManager();
+        pm.registerEvents(new KillMobListener(_logger, _sql, this), this);
+        pm.registerEvents(new PlayerJoinListener(_logger, _sql), this);
+        pm.registerEvents(new PlaceBlockListener(_logger, _sql, this), this);
+        pm.registerEvents(new BreakBlockListener(_logger, _sql, this), this);
+        pm.registerEvents(new InventoryClickListener(_logger, _sql, this), this);
+        return true;
+    }
+    private boolean registerCommands() {
+        getCommand("mcxmas").setExecutor(new McXmasCommand(_logger, _sql, this));
+        getCommand("quests").setExecutor(new QuestsCommand(_logger, _sql, this));
+        getCommand("setquest").setExecutor(new SetQuestCommand(_logger, _sql, this));
         return true;
     }
 

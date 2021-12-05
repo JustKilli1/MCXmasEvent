@@ -2,6 +2,8 @@ package net.marscraft.xmasevent.quest.listener;
 
 import net.marscraft.xmasevent.Main;
 import net.marscraft.xmasevent.quest.Questmanager;
+import net.marscraft.xmasevent.quest.task.Taskmanager;
+import net.marscraft.xmasevent.quest.task.tasktype.ITaskType;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.Location;
@@ -29,26 +31,13 @@ public class PlaceBlockListener implements Listener {
     public void onPlayerPlaceBlock(BlockPlaceEvent event) {
         Player player = event.getPlayer();
         int questId = _sql.GetActivePlayerQuestId(player);
-
+        String taskName = _sql.GetTaskNameByQuestId(questId);
         Questmanager questmanager = new Questmanager(_logger, _sql, _plugin);
-        if(!questmanager.GetTaskManager().IsTaskActive("PlaceBlockTask", questId)) return;
-        HashMap<Material, Location> blockInfo = questmanager.GetTaskManager().GetPlaceBlockTaskBlockInfo(questId);
-        if(blockInfo == null)return;
-        if(blockInfo.keySet().size() != 1)return;
-
-        Material blockType = null;
-        Location blockLoc = null;
-        for(Material key : blockInfo.keySet()) {
-            blockType = key;
-            blockLoc = blockInfo.get(key);
-
-        }
-        Block eventBlock = event.getBlock();
-        if(blockType == eventBlock.getType()) {
-            if(eventBlock.getWorld() == blockLoc.getWorld() && eventBlock.getLocation().getX() == blockLoc.getX() && eventBlock.getLocation().getY() == blockLoc.getY() && eventBlock.getLocation().getZ() == blockLoc.getZ()) {
-                if(_sql.UpdateTaskPlayerBlockPlaced(player)) questmanager.FinishQuest(questId, player);
-                else _logger.Error("PlaceBlockTask von Spieler " + player.getName() + " konnte nicht geupdatet werden!");
-            }
-        } else return;
+        Taskmanager taskmanager = questmanager.GetTaskManager();
+        ITaskType taskType = taskmanager.GetTaskTypeByName(questId, taskName);
+        if(taskType == null) return;
+        EventStorage eventStorage = new EventStorage();
+        eventStorage.SetBlockPlaceEvent(event);
+        taskType.ExecuteTask(eventStorage, player);
     }
 }

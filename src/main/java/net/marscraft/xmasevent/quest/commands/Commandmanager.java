@@ -18,6 +18,12 @@ public class Commandmanager {
                 return true;
             case "placeblocktask":
                 return true;
+            case "placeblockstask":
+                return true;
+            case "breakblockstask":
+                return true;
+            case "collectitemstask":
+                return true;
             default:
                 return false;
         }
@@ -25,8 +31,7 @@ public class Commandmanager {
     public boolean IsValidBlock(String block) {
         try {
             Material material = Material.valueOf(block.toUpperCase());
-            if(!material.isBlock()) return false;
-            return true;
+            return material.isBlock();
         } catch (Exception ex) {
             return false;
         }

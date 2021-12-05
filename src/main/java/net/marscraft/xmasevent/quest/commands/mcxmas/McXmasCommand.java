@@ -13,10 +13,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
 import java.sql.ResultSet;
-
-import static net.marscraft.xmasevent.quest.commands.CommandState.CantFindQuestId;
+import static net.marscraft.xmasevent.quest.commands.CommandState.*;
 
 public class McXmasCommand extends Commandmanager implements CommandExecutor {
 
@@ -32,7 +30,10 @@ public class McXmasCommand extends Commandmanager implements CommandExecutor {
         _sql = sql;
         _plugin = plugin;
     }
-
+    /*
+     * Command: /mcxmas [args]
+     * Handles /mcxmas Command
+     */
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
 
@@ -60,6 +61,10 @@ public class McXmasCommand extends Commandmanager implements CommandExecutor {
             commandStateActions(_commandType.ExecuteCommand(args), args);
             return true;
         } else if(args[0].equalsIgnoreCase("quests")) {
+            if(args.length != 2) {
+                commandStateActions(CommandSyntaxErrorQuests, args);
+                return false;
+            }
             if(args[1].equalsIgnoreCase("list")) {
                 _commandType = new CommandTypeList(_logger, _sql, _messages);
                 _commandType.ExecuteCommand(args);
@@ -67,23 +72,26 @@ public class McXmasCommand extends Commandmanager implements CommandExecutor {
             }
         } else if(args[0].equalsIgnoreCase("edit")) {
             if(args.length < 3){
-                commandStateActions(CommandState.CommandSyntaxErrorEdit, args);
+                commandStateActions(CommandSyntaxErrorEdit, args);
                 return false;
             }
-            _commandType = new CommandTypeEdit(_logger, _sql, player);
-            CommandState cState = _commandType.ExecuteCommand(args);
-            commandStateActions(cState, args);
+            _commandType = new CommandTypeEdit(_logger, _sql, _plugin, player);
+            commandStateActions(_commandType.ExecuteCommand(args), args);
             if(questSetupFinished(args)) _sql.QuestSetupFinished(questId);
             return true;
         } else if(args[0].equalsIgnoreCase("delete")){
             _commandType = new CommandTypeDelete(_logger, _sql);
             commandStateActions(_commandType.ExecuteCommand(args), args);
         } else {
-            commandStateActions(CommandState.CommandSyntaxError, args);
+            commandStateActions(CommandSyntaxError, args);
             return false;
         }
         return false;
     }
+
+    /*
+    * Checks if QuestSetup finished when finished set QuestSetupFinished true in db
+    */
     private boolean questSetupFinished(String[] args) {
 
         Commandmanager cm = new Commandmanager(_logger);
@@ -97,9 +105,12 @@ public class McXmasCommand extends Commandmanager implements CommandExecutor {
             _logger.Error(ex);
             return false;
         }
-        if(_sql.GetQuestReward(questId).size() == 0) return false;
-        return true;
+        return _sql.GetQuestRewardStr(questId).size() != 0;
     }
+
+    /*
+     * Sends Player Message based on commandState
+     */
     private void commandStateActions(CommandState commandState, String[] args) {
 
         String command = "";
@@ -173,6 +184,21 @@ public class McXmasCommand extends Commandmanager implements CommandExecutor {
                 break;
             case CouldNotUpdateQuestOrder:
                 _messages.SendPlayerMessage("Es ist ein Fehler beim löschen der Quest aufgetreten: QuestOrder konnte nicht geupdatet werden." );
+                break;
+            case DescriptionSet:
+                _messages.SendPlayerMessage("Beschreibung Gesetzt.");
+                break;
+            case CouldNotSetReward:
+                _messages.SendPlayerMessage("Reward konnte nicht gesetzt werden!");
+                break;
+            case QuestNpcNameSet:
+                _messages.SendPlayerMessage("Npc Name gesetzt.");
+                break;
+            case QuestStatusChangedTrue:
+                _messages.SendPlayerMessage("Quest ist jetzt aktiviert");
+                break;
+            case QuestStatusChangedFalse:
+                _messages.SendPlayerMessage("Quest ist jetzt deaktiviert");
                 break;
         }
     }
