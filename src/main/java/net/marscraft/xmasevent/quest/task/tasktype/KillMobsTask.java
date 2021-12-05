@@ -103,7 +103,7 @@ public class KillMobsTask implements ITaskType{
             if(!rs.next())return false; //TODO Fehlerbehandlung Task abbrechen
             int neededMobs = rs.getInt("NeededMobs");
             if(neededMobs == playerProgress)return true;
-            if(neededMobs == playerProgress + 1){
+            if(neededMobs == playerProgress){
                 int activeQuestId = _sql.GetActivePlayerQuestId(player);
                 if(activeQuestId == 0) return false;
                 if(!_sql.AddPlayerMobKill(player, activeQuestId)) return false;

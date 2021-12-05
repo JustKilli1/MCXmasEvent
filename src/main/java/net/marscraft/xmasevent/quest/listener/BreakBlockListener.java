@@ -31,6 +31,7 @@ public class BreakBlockListener implements Listener {
         Questmanager questmanager = new Questmanager(_logger, _sql, _plugin);
         Taskmanager taskmanager = questmanager.GetTaskManager();
         ITaskType taskType = taskmanager.GetTaskTypeByName(questId, taskName);
+        if(taskType == null) return;
         EventStorage eventStorage = new EventStorage();
         eventStorage.SetBlockBreakEvent(event);
         taskType.ExecuteTask(eventStorage, player);

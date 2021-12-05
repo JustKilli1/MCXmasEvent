@@ -9,7 +9,9 @@ website: marscraft.net
 commands:
   mcxmas:
     description: MarsCraft Event Command
+    permission: mcxmasevent.admin
   quests:
     description: Zeigt deinen Quest fortschritt an
+    permission: mcxmasevent.participate
   setquest:
     description: Setzt Spielerquest

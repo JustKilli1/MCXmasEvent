@@ -38,6 +38,7 @@ public class KillMobListener implements Listener {
         if(activePlayerQuest == null) return;
 
         ITaskType taskType = taskmanager.GetTaskTypeByName(questId, taskName);
+        if(taskType == null) return;
         EventStorage eventStorage = new EventStorage();
         eventStorage.SetEntityDeathEvent(event);
         taskType.ExecuteTask(eventStorage, player);

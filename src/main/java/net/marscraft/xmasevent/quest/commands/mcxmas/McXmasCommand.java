@@ -187,10 +187,19 @@ public class McXmasCommand extends Commandmanager implements CommandExecutor {
                 break;
             case DescriptionSet:
                 _messages.SendPlayerMessage("Beschreibung Gesetzt.");
+                break;
             case CouldNotSetReward:
                 _messages.SendPlayerMessage("Reward konnte nicht gesetzt werden!");
+                break;
             case QuestNpcNameSet:
                 _messages.SendPlayerMessage("Npc Name gesetzt.");
+                break;
+            case QuestStatusChangedTrue:
+                _messages.SendPlayerMessage("Quest ist jetzt aktiviert");
+                break;
+            case QuestStatusChangedFalse:
+                _messages.SendPlayerMessage("Quest ist jetzt deaktiviert");
+                break;
         }
     }
     private String getArgsString(String[] args, int starting) {

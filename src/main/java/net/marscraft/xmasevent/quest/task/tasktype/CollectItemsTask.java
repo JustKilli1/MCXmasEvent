@@ -5,17 +5,16 @@ import net.marscraft.xmasevent.quest.listener.EventStorage;
 import net.marscraft.xmasevent.quest.rewards.ItemStackSerializer;
 import net.marscraft.xmasevent.quest.task.Taskmanager;
 import net.marscraft.xmasevent.quest.task.tasktype.taskprogressmessages.TaskProgressMessages;
-import net.marscraft.xmasevent.shared.Inventorys.Inventorymanager;
 import net.marscraft.xmasevent.shared.database.DatabaseAccessLayer;
 import net.marscraft.xmasevent.shared.logmanager.ILogmanager;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-
-import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class CollectItemsTask implements ITaskType{
 
@@ -71,12 +70,6 @@ public class CollectItemsTask implements ITaskType{
         if (target == null) return null;
         ArrayList<ItemStack> playerItems = new ArrayList<>();
         String[] playerCollectedItemsIds = _sql.GetPlayerQuestValueString(player).split(",");
-/*        if(playerCollectedItemsIds.length == 1) {
-            ItemStack iStack = _sql.GetCollectItemByTaskId(Integer.parseInt(playerCollectedItemsIds[0]));
-            if(iStack == null) return null;
-            playerItems.add(iStack);
-            _neededItems.remove(iStack);
-        }*/
         for(String itemStr : playerCollectedItemsIds) {
             ItemStack iStack = _sql.GetCollectItemByTaskId(Integer.parseInt(itemStr));
             if(iStack == null) return null;
@@ -85,6 +78,58 @@ public class CollectItemsTask implements ITaskType{
         }
         return playerItems;
     }
+    private boolean removeItemFromPlayerInv(Player player, ItemStack target) {
+        ItemMeta targetMeta = target.getItemMeta();
+        NamespacedKey key = new NamespacedKey(Main.getPlugin(Main.class), "taskId");
+        if(targetMeta.getPersistentDataContainer().has(key, PersistentDataType.INTEGER)) targetMeta.getPersistentDataContainer().remove(key);
+        ItemStack[] playerInvContents = player.getInventory().getContents();
+        ArrayList<Integer> tmpInts = new ArrayList<>();
+
+        for(int i = 0; i < playerInvContents.length; i++) {
+            ItemStack playerContent = playerInvContents[i];
+            if(playerContent == null || playerContent.getType() == Material.AIR) continue;
+            if(playerContent.getType() != target.getType()) continue;
+            int playerAmount = playerContent.getAmount();
+            int targetAmount = target.getAmount();
+            if(playerAmount > targetAmount) {
+                int newAmount = playerAmount - targetAmount;
+                playerContent.setAmount(newAmount);
+                playerInvContents[i] = playerContent;
+                player.getInventory().setContents(playerInvContents);
+                return true;
+            } else if(playerAmount == targetAmount) {
+                playerInvContents[i] = new ItemStack(Material.AIR);
+                player.getInventory().setContents(playerInvContents);
+                return true;
+            } else if(playerAmount < targetAmount) {
+                tmpInts.add(i);
+            }
+        }
+        if(tmpInts.size() == 0) return false;
+        int targetAmount = target.getAmount();
+        for(Integer i : tmpInts) {
+            ItemStack iStack = playerInvContents[i];
+            int playerAmount = iStack.getAmount();
+            int differenceAmount = targetAmount - playerAmount;
+            if(differenceAmount < 0) {
+                iStack.setAmount(playerAmount - targetAmount);
+                playerInvContents[i] = iStack;
+                targetAmount -= playerAmount;
+                break;
+            } else if(differenceAmount == 0) {
+                playerInvContents[i] = new ItemStack(Material.AIR);
+                targetAmount = 0;
+            } else {
+                targetAmount -= playerAmount;
+                playerInvContents[i] = new ItemStack(Material.AIR);
+            }
+        }
+        if(targetAmount <= 0) {
+            player.getInventory().setContents(playerInvContents);
+            return true;
+        }
+        return false;
+    }
     @Override
     public boolean ExecuteTask(EventStorage eventStorage, Player player) {
         if(!IsTaskActive(eventStorage)) return false;
@@ -92,9 +137,9 @@ public class CollectItemsTask implements ITaskType{
         String playerCollectedItemsIds = _sql.GetPlayerQuestValueString(player);
         TaskProgressMessages taskMessages = new TaskProgressMessages(_logger, _sql, player);
         NamespacedKey key = new NamespacedKey(Main.getPlugin(Main.class), "taskId");
-        ArrayList<ItemStack> playerItems = getItemsFromIdStr(playerCollectedItemsIds, player);
-        if(playerItems != null) {
-            for (ItemStack iStack : playerItems) {
+        ArrayList<ItemStack> playerCollectedItems = getItemsFromIdStr(playerCollectedItemsIds, player);
+        if(playerCollectedItems != null) {
+            for (ItemStack iStack : playerCollectedItems) {
                 if (_neededItems.contains(_neededItems.indexOf(iStack)))
                     _neededItems.remove(iStack);
             }
@@ -103,17 +148,16 @@ public class CollectItemsTask implements ITaskType{
         for(ItemStack iStack : player.getInventory().getContents()) {
             if(iStack == null || iStack.getType() == Material.AIR) continue;
             for (int i = 0; i < _neededItems.size(); i++) {
-                ItemStack neededIstack = _neededItems.get(i);
-                if(neededIstack.getType() == iStack.getType()
-                        && neededIstack.getItemMeta().getDisplayName() == iStack.getItemMeta().getDisplayName()
-                        && neededIstack.getAmount() == iStack.getAmount()) {
+                ItemStack neededIStack = _neededItems.get(i);
+                if(neededIStack.getType() == iStack.getType()
+                        && neededIStack.getItemMeta().getDisplayName() == iStack.getItemMeta().getDisplayName()) {
                     int taskId = _neededItems.get(i).getItemMeta().getPersistentDataContainer().get(key, PersistentDataType.INTEGER);
+                    if(!removeItemFromPlayerInv(player, neededIStack)) continue;
                     if(addedItemIds == null)
                         addedItemIds = "" + taskId;
                     else
                         addedItemIds += "," + taskId;
                     _neededItems.remove(i);
-                    player.getInventory().remove(iStack);
                     break;
                 } else continue;
             }
@@ -128,42 +172,6 @@ public class CollectItemsTask implements ITaskType{
         else
             itemStr = oldItemStr + "," + addedItemIds;
         return _sql.SetPlayerQuestValueString(player, itemStr);
-/*        if(!IsTaskActive(eventStorage)) return false;
-        if(IsTaskFinished(player)) return false;
-        int questId = _sql.GetActivePlayerQuestId(player);
-        ArrayList<ItemStack> taskNeededItemsData = _sql.GetCollectItemsTaskNeededItems(questId);
-        ArrayList<ItemStack> taskNeededItems = new ArrayList<>();
-        ArrayList<ItemStack> playerCollectedItems = _taskmanager.GetItemStacksFromStr(_sql.GetPlayerQuestValueString(player));
-        TaskProgressMessages taskMessages = new TaskProgressMessages(_logger, _sql, player);
-        Inventorymanager inventorymanager = new Inventorymanager(_logger);
-        NamespacedKey key = new NamespacedKey(Main.getPlugin(Main.class), "taskId");
-        for(ItemStack iStack : taskNeededItemsData) {
-            taskNeededItems.add(inventorymanager.RemoveDataFromItemStack(iStack, key));
-        }
-        for(ItemStack iStack : playerCollectedItems) {
-            if(taskNeededItems.contains(iStack)) {
-                taskNeededItems.remove(iStack);
-            } else {
-                _logger.Error("Database data Error Player " + player.getName() + " has a Collected Item that's not in CollectItemsTask Table");
-                return false;
-            }
-        }
-        ItemStack[] playerInvContents = player.getInventory().getContents();
-
-        for(ItemStack playerItem : playerInvContents) {
-            if(playerItem == null || playerItem.getType() == Material.AIR) continue;
-            for(ItemStack taskItem : taskNeededItems) {
-                if(playerItem != taskItem) continue;
-                player.getInventory().remove(playerItem);
-                taskNeededItems.remove(taskItem);
-            }
-        }
-        if(taskNeededItems.size() == 0)
-            taskMessages.SendQuestFinishedMsg();
-        else
-            _sql.SetPlayerQuestValueString(player, _taskmanager.ItemStacksToString(taskNeededItems));
-
-        return true;*/
     }
 
     @Override

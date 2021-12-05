@@ -30,6 +30,7 @@ public class Taskmanager {
     public ITaskType GetTaskTypeByName(int questId, String taskName) {
         //TODO evtl. mit Reflections arbeiten
         ResultSet rs = _sql.GetTaskByQuestId(taskName, questId);
+        if(rs == null) return null;
         try {
             if(!rs.next())return null;
             switch (taskName.toLowerCase()) {

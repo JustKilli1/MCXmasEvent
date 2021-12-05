@@ -36,7 +36,7 @@ public class SetQuestCommand extends Commandmanager implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if(args.length < 2) return false;
-        if(!(sender instanceof Player) && !(args[1].equalsIgnoreCase("next"))) return false;
+        if(sender instanceof Player) return false;
         Player player = Bukkit.getPlayer(args[0]);
         if(player == null) return false;
         _messages = new Messagemanager(_logger, player);
@@ -62,6 +62,7 @@ public class SetQuestCommand extends Commandmanager implements CommandExecutor {
     private void commandStateActions(CommandState commandState, String[] args) {
         Player player = Bukkit.getPlayer(args[0]);
         int questId = _sql.GetActivePlayerQuestId(player);
+        if(questId == 0) return;
         String npcName = _sql.GetQuestNpcName(questId);
         String questName = _sql.GetQuestName(questId);
         switch (commandState) {
@@ -82,6 +83,10 @@ public class SetQuestCommand extends Commandmanager implements CommandExecutor {
                 break;
             case TaskExecuted:
                 _messages.SendNpcMessage(npcName, "Vielen dank für die Items");
+                break;
+            case NoMoreQuestsFound:
+                _messages.SendNpcMessage(npcName, "Leider habe ich aktuell keine Aufgaben für dich");
+                break;
         }
     }
 }

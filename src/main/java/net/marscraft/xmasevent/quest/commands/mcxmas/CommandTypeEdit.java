@@ -66,6 +66,13 @@ public class CommandTypeEdit extends Commandmanager implements ICommandType {
                 _sql.AddQuestNpcName(questId, commandStr);
                 return QuestNpcNameSet;
             } else return CommandSyntaxErrorEdit;
+        } else if(args[2].equalsIgnoreCase("Active")) {
+            if(args.length >= 3) {
+                boolean questActive = _sql.QuestActive(questId);
+                if(!_sql.UpdateQuestActive(questId, !questActive)) return FAILED;
+                if(!questActive) return QuestStatusChangedTrue;
+                else return QuestStatusChangedFalse;
+            } else return CommandSyntaxErrorEdit;
         } else {
             return CommandSyntaxErrorEdit;
         }

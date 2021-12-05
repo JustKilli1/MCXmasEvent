@@ -86,7 +86,7 @@ public class PlaceBlocksTask implements ITaskType{
     public boolean IsTaskFinished(Player player) {
         int questId = _sql.GetActivePlayerQuestId(player);
         int blockAmount = _sql.GetBlocksTaskBlockAmount(questId, _taskName);
-        int playerPlacedBlocks = _sql.GetPlayerQuestValueInt(player) + 1;
+        int playerPlacedBlocks = _sql.GetPlayerQuestValueInt(player);
         if (playerPlacedBlocks >= blockAmount) return true;
         return false;
     }

@@ -38,7 +38,7 @@ public class MySQL {
         port = config.getString("sql.port");
         database = config.getString("sql.database");
         username = config.getString("sql.username");
-        //password = config.getString("sql.password");
+        password = config.getString("sql.password");
     }
 
     // connect

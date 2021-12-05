@@ -17,7 +17,9 @@ public class PlayerJoinListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        if(!_sql.AddNewPlayerToDatabase(event.getPlayer())) return;
-        _logger.Info("Player Added: " + event.getPlayer().getName());
+        if(!event.getPlayer().hasPermission("mcxmasevent.user.participate") || event.getPlayer().isOp()) {
+            if (!_sql.AddNewPlayerToDatabase(event.getPlayer())) return;
+            _logger.Info("Player Added: " + event.getPlayer().getName());
+        }
     }
 }

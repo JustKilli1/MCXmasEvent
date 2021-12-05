@@ -33,15 +33,21 @@ public class CommandTypeProgress extends Commandmanager implements ICommandType 
     public CommandState ExecuteCommand(String[] args) {
 
         int questId = _sql.GetActivePlayerQuestId(_player);
-        ITaskType taskType = new CollectItemsTask(_logger, _sql, _plugin, questId);
-        EventStorage eventStorage = new EventStorage();
-        eventStorage.SetCommandArgs(args);
-        if(taskType.ExecuteTask(eventStorage, _player)) return TaskExecuted;
+        if(questId == 0) return NoActiveQuestFound;
+        String taskName = _sql.GetTaskNameByQuestId(questId);
+        if(taskName.equalsIgnoreCase("CollectItemsTask")) {
+            ITaskType taskType = new CollectItemsTask(_logger, _sql, _plugin, questId);
+            EventStorage eventStorage = new EventStorage();
+            eventStorage.SetCommandArgs(args);
+            if (taskType.ExecuteTask(eventStorage, _player)) return TaskExecuted;
+        }
         Questmanager questmanager = new Questmanager(_logger, _sql, _plugin);
         Quest activePlayerQuest = questmanager.GetQuestByQuestId(questId);
         if(activePlayerQuest == null) return NoActiveQuestFound;
         if(!(activePlayerQuest.GetTaskType().IsTaskFinished(_player))) return TaskNotFinished;
         if(_sql.PlayerQuestFinished(_player)) {
+            int lastQuestId = _sql.GetLastQuestId();
+            if(questId == lastQuestId) return NoMoreQuestsFound;
             if(!questmanager.StartNextQuest(questId, _player)) return CouldNotStartNextQuest;
             if(!_sql.SetPlayerQuestFinished(_player, false)) return CouldNotUpdateQuestFinished;
             return NextQuestStarted;

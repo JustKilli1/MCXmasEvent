@@ -56,6 +56,7 @@ public class Questmanager {
 
         try {
             ResultSet questRS = _sql.GetQuest(questId);
+            if(questRS == null) return null;
             if(!questRS.next())return null;
 
             String taskName = questRS.getString("TaskName");

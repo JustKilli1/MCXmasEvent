@@ -43,9 +43,11 @@ public class CollectItemsBookGui extends BaseQuestsBookGui implements IBookGui{
 
     /*
     * Beispiel TaskGui:
-    * Aufgabe: Platziere 64 Cobblestone
+    * Trixi möchte folgende Items von dir:
     *
-    * Platzierte Cobblestone blöcke: 32/64
+    * Cobblestone 64/64
+    * RedstoneBlock 0/32
+    * GoldBlock 0/32
     * Aktiv
     * */
     @Override
@@ -68,12 +70,12 @@ public class CollectItemsBookGui extends BaseQuestsBookGui implements IBookGui{
         for(ItemStack iStack : neededItems) {
             int amount = iStack.getAmount();
             if(iStack.getItemMeta().getPersistentDataContainer().has(key, PersistentDataType.INTEGER)) {
+
                 int taskId = iStack.getItemMeta().getPersistentDataContainer().get(key, PersistentDataType.INTEGER);
-                if(taskIds.contains(taskId)) {
-                    taskGui += "§2" + iStack.getI18NDisplayName() + " " + amount + "/" + amount + "\n";
-                } else {
-                    taskGui += "" + iStack.getI18NDisplayName() + " 0/" + amount + "\n";
-                }
+                if(taskIds.contains(taskId))
+                    taskGui += "§a" + iStack.getI18NDisplayName() + " " + amount + "/" + amount + "\n";
+                else
+                    taskGui += "§0" + iStack.getI18NDisplayName() + " 0/" + amount + "\n";
             } else {
                 _logger.Error("ItemStack has no persistant data container matching key");
                 return null;

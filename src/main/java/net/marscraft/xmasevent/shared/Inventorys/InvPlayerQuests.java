@@ -44,7 +44,8 @@ public class InvPlayerQuests extends Inventorymanager implements IInventoryType{
                 int questIds = rs.getInt("QuestId");
                 int questOrder = rs.getInt("QuestOrder");
                 boolean questSetupFinished = rs.getBoolean("QuestSetupFinished");
-                if (questSetupFinished) {
+                boolean questActive = rs.getBoolean("QuestActive");
+                if (questSetupFinished && questActive) {
                     ItemStack questBook;
                     if (activeQuestOrder == questOrder) {
                         questBook = new ItemBuilder(Material.WRITABLE_BOOK).SetDisplayname("§c" + rs.getString("QuestName")).SetLore("§aAktiv").Build();
